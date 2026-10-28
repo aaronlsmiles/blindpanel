@@ -20,6 +20,8 @@
 - **Accessible names.** Chromium named a radio "2 , Mostly not", with a space taken from a visually hidden span. Each radio now carries an explicit name, "2, Mostly not".
 - **One bad row.** A hand-inserted malformed row could make the SQL `tally()` raise for everyone. The guard now sits inside the lateral call, and a test inserts such a row.
 
-**What blinding can't do.** The 20 StillDrawn clips are byte-identical to the release, so their C2PA credentials remain. The docs say so (docs/blinding.md).
+- **A class-name collision.** A new legend class reused the intro's `.bp-key` name, and its `nowrap` made the page 594 px wide on a 390 px phone. The e2e suite caught it as a tap landing on the wrong element. The class is renamed, and every screenshot now asserts there is no horizontal overflow.
+
+**What blinding can't do.** The 20 StillDrawn clips are byte-identical to the release, so their C2PA credentials remain. The docs say so (docs/blinding.md). `reveal.json` is a static file, so a direct request reads it.
 
 **Spend:** £0.

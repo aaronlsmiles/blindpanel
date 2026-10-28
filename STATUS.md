@@ -29,7 +29,7 @@ Card: P10, folded into P01's plan on 28 Oct · Started: 2026-10-28 · Public slu
 | 1 | 2026-10-28 | Sub-plan C (`docs/superpowers/plans/2026-10-28-kit.md`): the design pass reconciled (radios, visitor order, opaque media paths, honest blinding, exact goldens; tarball consumption, React wrapper, invited mode and `db check` deferred) | Written | yes | 0 |
 | 2 | 2026-10-28 | Core and stats, test first: order (Python vectors), codes, schema and compiler, lock, payload; Spearman, ordinal α, landing | α 0.2087697206147856 / 0.4776558778120862 and all 10 per-metric ρ to 1e-12 from the kit's own reference copy | yes | 0 |
 | 3 | 2026-10-28 | Server and SQL: handlers over memory, file and Supabase stores; `sql/schema.sql` in PGlite | RLS forced, no policies; public roles denied everything incl. `tally()`; service role select/insert only; PT429 caps; SQL tally = JS tally | yes | 0 |
-| 4 | 2026-10-28 | UI, CLI, verify, examples, setup, e2e | 139 unit tests; 24 Playwright runs (1440/390 × light/dark, axe WCAG 2.2 AA serious = 0, console clean); verify fails on each of 10 doctored builds | yes | 0 |
+| 4 | 2026-10-28 | UI, CLI, verify, examples, setup, e2e | 140 unit tests; 24 Playwright runs (1440/390 × light/dark, axe WCAG 2.2 AA serious = 0, console clean); verify fails on each of 10 doctored builds | yes | 0 |
 | 5 | 2026-10-28 | StillDrawn media at opaque R2 paths (`blindpanel/stilldrawn/<code>`), byte-exact, no custom metadata | 34 objects; `verify --media`: all reachable, sha256 = release, no model in headers; re-run uploads 0 | yes | 0 |
 
 ## Spend: £0 of £0
@@ -41,7 +41,7 @@ Card: P10, folded into P01's plan on 28 Oct · Started: 2026-10-28 · Public slu
   - Register: ρ 0.92 against the six raters' 0.18–0.83 (beats all 6). α on these 8 clips is 0.20, and 0.23 with the visitor added.
   - Sameness: ρ 0.95 against 0.56–0.94 (beats all 6). α 0.49, and 0.56 with the visitor added.
 - **Left for Phase 4:** the `/rate` mount and StillDrawn reveal in the explorer, `api/` wrappers, applying `sql/schema.sql` to the live project, the vendored tarball, the React wrapper, `db check`.
-- **Left for Phase 5:** where up to four raters share a score, the strip's dots stack upward past the row edge. Re-check with `impeccable` and `break-ui`.
+- **Fixed after review:** tied raters now sit in rows under the scale line. A class collision that made the intro 594 px wide at 390 was fixed, and the e2e suite now fails on any horizontal overflow. A fresh clone at `ec1a0e1` passes `npm run setup -- --ci` again.
 
 ## Links: demo — · film — · repo — (local only)
 
