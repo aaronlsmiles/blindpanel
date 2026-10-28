@@ -1,0 +1,41 @@
+{
+ "note": "Source files in the StillDrawn release for each item id; build the study to get each item's opaque object name.",
+ "panels": {
+  "cu-tone-2": "dataset/panels/cu-tone-2.png",
+  "act-line-1": "dataset/panels/act-line-1.png",
+  "cip-act-tank-1": "dataset/panels/cip-act-tank-1.png",
+  "cu-tone-3": "dataset/panels/cu-tone-3.png",
+  "cu-line-1": "dataset/panels/cu-line-1.png",
+  "est-line-1": "dataset/panels/est-line-1.png",
+  "est-black-1": "dataset/panels/est-black-1.png",
+  "est-line-2": "dataset/panels/est-line-2.png",
+  "act-black-2": "dataset/panels/act-black-2.png",
+  "cu-line-3": "dataset/panels/cu-line-3.png",
+  "cu-black-3": "dataset/panels/cu-black-3.png",
+  "act-line-2": "dataset/panels/act-line-2.png",
+  "chain-est-cosmic-1": "dataset/panels/chain-est-cosmic-1.png",
+  "act-black-1": "dataset/panels/act-black-1.png"
+ },
+ "clips": {
+  "cu-line-3_campush_h3": "runs/h3-fal/cu-line-3_campush_h3.mp4",
+  "cu-tone-2_campush_h3": "runs/h3-fal/cu-tone-2_campush_h3.mp4",
+  "act-line-2_burst_ltx23": "runs/ltx23/act-line-2_burst_ltx23.mp4",
+  "act-black-1_campush_gen45": "runs/gen4.5/act-black-1_campush_gen45.mp4",
+  "chain-est-cosmic-1_idle_gen45": "runs/gen4.5/chain-est-cosmic-1_idle_gen45.mp4",
+  "cu-line-3_campush_gen4t": "runs/gen4_turbo/cu-line-3_campush_gen4t.mp4",
+  "cip-act-tank-1_idle_ltx23": "runs/ltx23/cip-act-tank-1_idle_ltx23.mp4",
+  "est-line-1_idle_gen4t": "runs/gen4_turbo/est-line-1_idle_gen4t.mp4",
+  "cip-act-tank-1_burst_gen45": "runs/gen4.5/cip-act-tank-1_burst_gen45.mp4",
+  "chain-est-cosmic-1_campush_wan22": "runs/wan22/chain-est-cosmic-1_campush_wan22.mp4",
+  "cu-line-1_idle_h3": "runs/h3-fal/cu-line-1_idle_h3.mp4",
+  "cu-line-1_idle_ltx23": "runs/ltx23/cu-line-1_idle_ltx23.mp4",
+  "est-black-1_campush_wan22": "runs/wan22/est-black-1_campush_wan22.mp4",
+  "act-line-2_burst_gen4t": "runs/gen4_turbo/act-line-2_burst_gen4t.mp4",
+  "act-line-1_idle_wan22": "runs/wan22/act-line-1_idle_wan22.mp4",
+  "act-black-2_idle_gen4t": "runs/gen4_turbo/act-black-2_idle_gen4t.mp4",
+  "cu-tone-3_idle_h3": "runs/h3-fal/cu-tone-3_idle_h3.mp4",
+  "est-line-2_burst_h3": "runs/h3-fal/est-line-2_burst_h3.mp4",
+  "cu-black-3_burst_wan22": "runs/wan22/cu-black-3_burst_wan22.mp4",
+  "chain-est-cosmic-1_burst_ltx23": "runs/ltx23/chain-est-cosmic-1_burst_ltx23.mp4"
+ }
+}

@@ -1,0 +1,29 @@
+# Model, vendor and tool names that must not reach the page, its URLs or its
+# requests before the visitor finishes. Plain lines match as case-insensitive
+# substrings; /…/ lines are case-insensitive regular expressions.
+runway
+/gen-?4/
+gen45
+gen4t
+turbo
+/\bwan\b/
+/wan ?2/
+ltx
+lightricks
+/\bh3\b/
+hunyuan
+minimax
+/\bfal\b/
+fal.ai
+seedance
+bytedance
+comfyui
+/stable ?diffusion/
+kling
+/\bsora\b/
+/\bveo\b/
+/\bluma\b/
+/\bpika\b/
+gemini
+# StillDrawn cell ids name the motion class next to the engine
+/_(idle|burst|campush)_/
