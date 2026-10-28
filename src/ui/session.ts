@@ -1,5 +1,6 @@
 import { participantOrder, type ParticipantOrder } from "../core/order.js";
 import { buildSubmission } from "../core/payload.js";
+import { plainText } from "../core/text.js";
 import type { Question, Study, Submission } from "../core/types.js";
 import { h, put, rich } from "./dom.js";
 import { clear, load, safeStorage, save } from "./storage.js";
@@ -145,7 +146,7 @@ export function mountSession(el: HTMLElement, study: Study, opts: SessionOptions
     const scale = h("div", { class: "bp-scale" });
     scaleOf(q).labels.forEach((label, i) => {
       const v = i + 1;
-      const input = h("input", { type: "radio", name, value: v, class: "bp-radio", checked: current === v });
+      const input = h("input", { type: "radio", name, value: v, class: "bp-radio", checked: current === v, "aria-label": `${v}, ${plainText(label)}` });
       input.addEventListener("change", () => {
         (state.answers[part][code] ??= {})[q.id] = v;
         onChange();

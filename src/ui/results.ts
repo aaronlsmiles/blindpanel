@@ -30,7 +30,6 @@ export interface ResultsController {
 }
 
 const f2 = (v: number | null | undefined) => (finite(v) ? (v < 0 ? "−" : "") + Math.abs(v).toFixed(2) : "n/a");
-const signed = (v: number) => (v > 0 ? "+" : v < 0 ? "−" : "±") + Math.abs(v).toFixed(1);
 
 export function mountResults(el: HTMLElement, o: ResultsOptions): ResultsController {
   const { study, reveal, submission } = o;
@@ -181,7 +180,7 @@ export function mountResults(el: HTMLElement, o: ResultsOptions): ResultsControl
       facts.push(
         Math.abs(l.bias) < 0.05
           ? "On average your scores sit right at the panel's."
-          : `On average you scored ${signed(l.bias)} points ${l.bias > 0 ? "higher (more lenient)" : "lower (stricter)"} than the panel's mean, and ${l.mae!.toFixed(1)} points away from it per clip.`,
+          : `On average you scored ${Math.abs(l.bias).toFixed(1)} points ${l.bias > 0 ? "higher (more lenient)" : "lower (stricter)"} than the panel's mean, and ${l.mae!.toFixed(1)} points away from it per clip.`,
       );
     }
     if (l.alpha_panel !== null && l.alpha_with_you !== null)
@@ -192,7 +191,11 @@ export function mountResults(el: HTMLElement, o: ResultsOptions): ResultsControl
       const mine = study.panels.map((p) => submission.answers.baseline[p.code]?.[baseQs[0].id] ?? null);
       const adj = baselineAdjusted(yours, panelOf, mine);
       if (adj.mean !== null)
-        facts.push(`Against your own scores for the stills, the clips moved you ${signed(adj.mean)} points on average.`);
+        facts.push(
+          Math.abs(adj.mean) < 0.05
+            ? "You scored the clips the same as their stills, on average."
+            : `You scored the clips ${Math.abs(adj.mean).toFixed(1)} points ${adj.mean < 0 ? "lower" : "higher"} than your own scores for their stills, on average.`,
+        );
     }
     items.push(...facts.map((t) => h("p", {}, t)));
     items.push(strip(q, keep.map(([, i]) => panel[i]), keep.map(([r]) => r), yours));
@@ -240,7 +243,10 @@ export function mountResults(el: HTMLElement, o: ResultsOptions): ResultsControl
       } catch {
         r = { ok: false, status: 0 };
       }
-      if (r.ok) status.textContent = "Added. Thank you.";
+      if (r.ok) {
+        status.textContent = "Added. Thank you.";
+        refreshCrowd?.();
+      }
       else if (r.status === 409) status.textContent = "These ratings were already added.";
       else if (r.status === 429) status.textContent = "The tally isn't taking more ratings today. Your results here are unaffected.";
       else {
@@ -258,10 +264,12 @@ export function mountResults(el: HTMLElement, o: ResultsOptions): ResultsControl
     );
   }
 
+  let refreshCrowd: (() => void) | undefined;
   function crowd() {
     if (!o.loadTally || !study.modes.public.tally) return null;
     const box = h("section", { class: "bp-section bp-crowd", "aria-live": "polite" }, h("h3", {}, "Other visitors"), h("p", {}, "Loading the tally…"));
-    o.loadTally().then(
+    refreshCrowd = () => void load();
+    const load = () => o.loadTally!().then(
       (t) => {
         const lines: string[] = [];
         for (const [k, q] of clipQs.entries()) {
@@ -286,6 +294,7 @@ export function mountResults(el: HTMLElement, o: ResultsOptions): ResultsControl
       },
       () => box.replaceChildren(h("h3", {}, "Other visitors"), h("p", {}, "The crowd tally is unavailable right now.")),
     );
+    void load();
     return box;
   }
 
