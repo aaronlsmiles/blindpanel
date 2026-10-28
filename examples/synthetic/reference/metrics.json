@@ -1,0 +1,7 @@
+{
+ "source": "made up for testing",
+ "metrics": [
+  {"id": "drift_px", "label": "Line drift (px)", "worse": "higher", "values": {"c01": 0.1, "c02": 6.0, "c03": 1.5}},
+  {"id": "blur", "label": "Blur", "worse": "higher", "values": {"c01": 0.0, "c02": 0.1, "c03": 0.9}}
+ ]
+}

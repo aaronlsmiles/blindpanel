@@ -1,0 +1,90 @@
+# yaml-language-server: $schema=../../schema/study.schema.json
+# A tiny study that runs offline: three one-second clips made from two stills.
+# Media were generated with media/make.sh (ffmpeg); everything here is CC0.
+blindpanel: 1
+id: synthetic
+title: A three-clip test study
+instrument: "1"
+media:
+  base: ./media/
+  origins: []
+blinding:
+  seed: synthetic-demo-1
+  banned_terms_file: banned-terms.txt
+scales:
+  look:
+    labels:
+      - "No: it does not look like a line drawing"
+      - Mostly not
+      - Half and half
+      - Mostly
+      - "Yes: a clean line drawing"
+  same:
+    labels:
+      - "No: it became a different picture"
+      - Mostly not
+      - Half and half
+      - "Mostly: small things change"
+      - "Yes: nothing was added, removed or replaced"
+questions:
+  - id: drawing
+    part: baseline
+    text: Does this still image look like a clean line drawing?
+    direction: 5 = yes, completely · 1 = no, not at all
+    scale: look
+  - id: look
+    part: clips
+    text: Does this clip still look like a clean line drawing, all the way through?
+    direction: 5 = yes, completely · 1 = no, not at all
+    notes: ["Blur counts against it; **movement on its own does not**."]
+    intro_notes: ["A slight change in brightness is a 4 rather than a 5."]
+    scale: look
+  - id: same
+    part: clips
+    text: Apart from the movement itself, is this the same picture throughout?
+    direction: 5 = yes, unchanged · 1 = no, it became a different picture
+    scale: same
+parts:
+  baseline:
+    intro: ["First, the **two stills** on their own. One question about each."]
+  clips:
+    intro:
+      - Each screen shows a **still** (left) and a **one-second clip** made from it (right, on loop). Two questions about each.
+      - There are no right answers. You can change an answer with Back before finishing.
+    watch_note: Watch the whole clip before answering.
+    clip_seconds: 1
+    session_size: 2
+    extend: true
+items:
+  panels:
+    - { id: panel-box, ref: p01, file: panel-box.png, sha256: 4a9b59450eacb7ceb0148a02e0e8bbfbc3dec164201c1da513a3feedbc6ee63a }
+    - { id: panel-grid, ref: p02, file: panel-grid.png, sha256: e3b7489be34d801d7ad8aee9cb052dbfb919838e5bf567ac524432be613116fc }
+  clips:
+    - id: box-still_engine-alpha
+      ref: c01
+      reference: panel-box
+      file: box-still.mp4
+      sha256: 32184c15d1f9f363affab4103a98fe2d15dbc9023a42d7e2003b7fdf2356c486
+      label: Engine Alpha
+      meta: { motion: still }
+    - id: box-drift_engine-beta
+      ref: c02
+      reference: panel-box
+      file: box-drift.mp4
+      sha256: 9816dc07dd9174d67ec52316b0237e38297239e84cf77d69fa6d77037a62472d
+      label: Engine Beta
+      meta: { motion: drift }
+    - id: grid-blur_engine-gamma
+      ref: c03
+      reference: panel-grid
+      file: grid-blur.mp4
+      sha256: d8cc54a914430055f42299edd4eb1a1ae4524d7f50fada80e79c6ddf99dec3b0
+      label: Engine Gamma
+      meta: { motion: blur }
+reference:
+  ratings: reference/
+  author_slot: S1
+  metrics: reference/metrics.json
+  attribution: Synthetic ratings and metrics, made up for testing (CC0).
+modes:
+  public: { submit: true, tally: true, min_crowd_n: 2 }
