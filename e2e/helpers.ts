@@ -17,7 +17,14 @@ export async function expectAccessible(page: Page) {
   expect(serious.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`)).toEqual([]);
 }
 
+/** The page must never be wider than the viewport (a mobile browser would zoom out). */
+export async function expectNoOverflow(page: Page) {
+  const w = await page.evaluate(() => ({ doc: document.documentElement.scrollWidth, view: window.innerWidth }));
+  expect(w.doc, `page is ${w.doc}px wide in a ${w.view}px viewport`).toBeLessThanOrEqual(w.view);
+}
+
 export async function shot(page: Page, info: TestInfo, name: string) {
+  await expectNoOverflow(page);
   await page.screenshot({ path: `test-results/screens/${info.project.name}-${name}.png`, fullPage: true });
 }
 

@@ -114,9 +114,9 @@ export function mountResults(el: HTMLElement, o: ResultsOptions): ResultsControl
       h(
         "figcaption",
         { class: "bp-legend-row" },
-        h("span", { class: "bp-key" }, h("span", { class: "bp-key-you" }), " you"),
-        h("span", { class: "bp-key" }, h("span", { class: "bp-key-dot" }), " a panel rater"),
-        h("span", { class: "bp-key" }, h("span", { class: "bp-key-mean" }), " panel mean"),
+        h("span", { class: "bp-legend-key" }, h("span", { class: "bp-key-you" }), " you"),
+        h("span", { class: "bp-legend-key" }, h("span", { class: "bp-key-dot" }), " a panel rater"),
+        h("span", { class: "bp-legend-key" }, h("span", { class: "bp-key-mean" }), " panel mean"),
         h("span", { class: "bp-key-scale" }, `Scale: ${study.scales[q.scale].labels[0].replace(/\*\*/g, "")} (1) to ${study.scales[q.scale].labels[4].replace(/\*\*/g, "")} (5)`),
       ),
     );
