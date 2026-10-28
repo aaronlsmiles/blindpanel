@@ -79,7 +79,7 @@ describe("where you land", () => {
     const l = landing({ you, panel, raters });
     const means = [0, 1, 2, 3, 4, 5].map((j) => nanmean(panel.map((r) => r[j]))!);
     expect(l.bias).toBeCloseTo(means.reduce((a, m) => a + (5 - m), 0) / 6, 12);
-    expect(l.mae).toBeCloseTo(l.bias, 12);
+    expect(l.mae).toBeCloseTo(l.bias!, 12);
   });
   test("metric rho for you and for each rater", () => {
     const metric = { id: "m", label: "m", worse: "higher" as const, values: [0.1, 0.2, 0.9, 1.5, 0.5, null] };
