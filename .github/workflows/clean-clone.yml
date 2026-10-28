@@ -1,0 +1,27 @@
+# Proves the README's promise: a fresh clone plus one command gives a working,
+# tested study, with no accounts and no network beyond the npm registry.
+name: clean-clone
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  setup:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node: [22, 24]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Clone the repository into an empty folder
+        run: git clone --depth 1 "file://$GITHUB_WORKSPACE" "$RUNNER_TEMP/clean"
+      - name: npm run setup -- --ci
+        working-directory: ${{ runner.temp }}/clean
+        run: npm run setup -- --ci

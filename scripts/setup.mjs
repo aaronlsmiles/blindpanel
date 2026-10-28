@@ -32,7 +32,9 @@ for (const ex of ["synthetic", "stilldrawn"]) {
 
 if (ci) {
   run("Unit, golden and SQL tests", npm, ["test"]);
-  run("Browser for the end-to-end tests (skipped if present)", npx, ["playwright", "install", "chromium"]);
+  // on a fresh Linux runner the browser also needs system libraries
+  const deps = process.env.CI && process.platform === "linux" ? ["--with-deps"] : [];
+  run("Browser for the end-to-end tests (skipped if present)", npx, ["playwright", "install", ...deps, "chromium"]);
   run("End-to-end tests (1440 and 390 px, light and dark)", npm, ["run", "e2e"]);
   console.log("\n✓ setup --ci passed: a clean clone builds, verifies and passes every test.");
 } else {

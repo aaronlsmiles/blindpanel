@@ -1,0 +1,25 @@
+# blindpanel: process log (public)
+
+## 2026-10-28: v0.1 built in one session
+
+**Criteria first.** STATUS.md froze success, a kill rule and a £0 budget before any code.
+
+**Order of work.**
+1. The visitor-order scheme, against vectors from a stdlib-only Python reference: 12 of 12 matched on the first run.
+2. The study schema and the compiler.
+3. The stats.
+4. The StillDrawn example's reference data, copied unchanged from the public release.
+5. The golden tests: ordinal α 0.2087697206147856 (register) and 0.4776558778120862 (sameness), and all ten per-metric ρ, each matched to 1e-12 on the first run. The α code is a line-for-line port of the release's frozen analysis, so its summation order matches.
+6. Payload validation, the stores, and the SQL. The SQL was tested in PGlite (Postgres in WebAssembly) with Supabase's three API roles recreated.
+7. The UI, the CLI and the end-to-end tests.
+
+**Surprises worth keeping.**
+- **A model named "H3".** The blinding scan's first real catch was the HTML element `<h3>`, because one of StillDrawn's models is called H3. Banned terms now keep their own regex flags: `/\bH3\b/` is case-sensitive, and the lowercase `h3-fal` and `_h3` forms are listed separately.
+- **A test that couldn't fail.** "Reordered baseline" passed because block 1 held a single still. The test now adds a foreign still instead.
+- **A strong rater.** A visitor who answers exactly the panel's mean does not beat every rater under leave-one-out: one rater tracked the mean more closely (ρ 0.955 against 0.948). The test now states the definition rather than the hoped-for outcome.
+- **Accessible names.** Chromium named a radio "2 , Mostly not", with a space taken from a visually hidden span. Each radio now carries an explicit name, "2, Mostly not".
+- **One bad row.** A hand-inserted malformed row could make the SQL `tally()` raise for everyone. The guard now sits inside the lateral call, and a test inserts such a row.
+
+**What blinding can't do.** The 20 StillDrawn clips are byte-identical to the release, so their C2PA credentials remain. The docs say so (docs/blinding.md).
+
+**Spend:** £0.

@@ -1,0 +1,23 @@
+# On a version tag: build, pack the tarball that consumers vendor, and attach it to a release.
+name: release
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: write
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npm test
+      - run: npm pack
+      - run: sha256sum blindpanel-*.tgz | tee SHA256SUMS
+      - run: gh release create "$GITHUB_REF_NAME" blindpanel-*.tgz SHA256SUMS --title "$GITHUB_REF_NAME" --notes-file CHANGELOG.md
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

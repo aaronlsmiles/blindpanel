@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: If you use blindpanel, please cite it as below.
+title: "blindpanel: blinded human rating of generated video"
+type: software
+authors:
+  - family-names: Smiles
+    given-names: Aaron
+version: 0.1.0
+license: MIT
+repository-code: https://github.com/aaronlsmiles/blindpanel
+references:
+  - type: dataset
+    title: StillDrawn dataset
+    authors:
+      - family-names: Smiles
+        given-names: Aaron
+    year: 2026
+    doi: 10.5281/zenodo.23072784
