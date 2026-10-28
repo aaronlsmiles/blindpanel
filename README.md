@@ -70,7 +70,7 @@ Nothing else is stored: no names, accounts, cookies, IP addresses or user agents
 
 ## Limitations
 
-- **Blinding covers the page, not the files.** It keeps model names out of the page, its URLs and its requests until you finish. It cannot remove provenance embedded in byte-exact media: StillDrawn's clips carry C2PA credentials, which a determined visitor can read. Anyone can also match a clip against a public release. [docs/blinding.md](docs/blinding.md) explains this.
+- **Blinding covers the page, not the files.** It keeps model names out of the page, its URLs and its requests until you finish. `reveal.json` is a static file, so anyone who requests it directly can read it. It also cannot remove provenance embedded in byte-exact media: StillDrawn's clips carry C2PA credentials, which a determined visitor can read. Anyone can also match a clip against a public release. [docs/blinding.md](docs/blinding.md) explains this.
 - **Small numbers.** With 8 clips, one answer moves ρ by about 0.1, and the page says so. The published 95% intervals are about ±0.4 wide, and the page shows them beside each value.
 - **Recomputed numbers.** Bootstrap intervals use the kit's own generator, so they cannot reproduce numpy's draws. Published intervals are shown as published.
 - **The author's earlier wording.** In the StillDrawn panel, the author rated first, before two wording revisions. A switch leaves the author out.

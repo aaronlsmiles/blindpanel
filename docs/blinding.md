@@ -11,6 +11,7 @@ Until the visitor presses "See where you land":
 
 ## Not covered
 
+- **`reveal.json` itself.** It is a static file next to the page. The page never requests it before completion, but anyone who types its URL can read the labels. Blinding protects the honest path through the page. It does not hold a secret: the page has nothing to authenticate a visitor with.
 - **Embedded provenance.** Byte-exact clips keep what their makers embedded. StillDrawn's Runway and MiniMax clips carry C2PA content credentials, and a visitor who downloads a clip and inspects it can read them. Re-encoding would strip them but would break the release's byte-identity (and its request not to re-encode), so the example keeps the bytes and says so.
 - **Public releases.** If the clips are published elsewhere (StillDrawn's are, with a `mapping.json` from the release's own opaque codes to cells), a visitor can match bytes or frames. blindpanel's codes are seeded separately from the release's, so they do not match it directly.
 - **This repository.** `study.yaml` maps every code to its item, as it must. Blinding is a property of the page, not a secret.
