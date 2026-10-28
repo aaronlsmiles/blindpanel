@@ -330,7 +330,7 @@
     position: relative;
     display: flex;
     justify-content: space-between;
-    margin-inline: 4px;
+    margin-inline: 8px;
   }
   .bp-row {
     min-height: 40px;
@@ -346,33 +346,36 @@
     color: var(--bp-muted);
     font-size: 12px;
   }
+  /* the scale line sits at --bp-axis-y; you and the panel mean ride on it,
+     raters' dots sit in rows of up to three just below it */
   .bp-track {
+    --bp-axis-y: 14px;
     position: relative;
-    height: 36px;
-    margin-inline: 8px;
+    height: 42px;
+    margin-inline: 12px;
   }
   .bp-track::before {
     content: "";
     position: absolute;
     left: 0;
     right: 0;
-    top: 50%;
+    top: var(--bp-axis-y);
     border-top: 1px solid var(--bp-line);
   }
   .bp-tick {
     position: absolute;
-    top: calc(50% - 4px);
+    top: calc(var(--bp-axis-y) - 4px);
     height: 8px;
     border-left: 1px solid var(--bp-line);
   }
   .bp-dot {
     position: absolute;
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
     background: var(--bp-context);
-    top: calc(50% - 4px - var(--bp-stack, 0) * 6px);
-    transform: translateX(-50%);
+    top: calc(var(--bp-axis-y) + 9px + var(--bp-row, 0) * 9px);
+    transform: translateX(calc(-50% + var(--bp-dx, 0) * 9px));
   }
   .bp-dot-author {
     background: transparent;
@@ -380,7 +383,7 @@
   }
   .bp-mean {
     position: absolute;
-    top: calc(50% - 10px);
+    top: calc(var(--bp-axis-y) - 10px);
     height: 20px;
     border-left: 2px solid var(--bp-ink);
     transform: translateX(-1px);
@@ -389,7 +392,7 @@
     position: absolute;
     width: 16px;
     height: 16px;
-    top: calc(50% - 8px);
+    top: calc(var(--bp-axis-y) - 8px);
     border-radius: 50%;
     border: 3px solid var(--bp-accent-line);
     background: var(--bp-accent);
@@ -403,6 +406,14 @@
     margin-top: 8px;
     padding-top: 8px;
     border-top: 1px solid var(--bp-line);
+  }
+  .bp-key {
+    white-space: nowrap;
+    margin-right: 10px;
+  }
+  .bp-key-scale {
+    flex-basis: 100%;
+    color: var(--bp-faint);
   }
   .bp-key-you,
   .bp-key-dot,

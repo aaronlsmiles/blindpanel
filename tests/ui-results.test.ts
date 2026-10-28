@@ -127,3 +127,24 @@ describe("opt-in and crowd", () => {
     expect(text()).toMatch(/Still a line drawing: the crowd's average agrees with the panel's at ρ 1\.00 over 3 clips/);
   });
 });
+
+test("tied raters sit side by side in rows of three, never stacked upward", async () => {
+  const submission = await sub(sd.study, () => 4);
+  mount({ ...sd, submission });
+  for (const track of document.querySelectorAll<HTMLElement>('.bp-section[data-q="register"] .bp-track')) {
+    const byLeft = new Map<string, { dx: number; row: number }[]>();
+    for (const d of track.querySelectorAll<HTMLElement>(".bp-dot")) {
+      const left = d.style.left;
+      const pos = { dx: Number(d.style.getPropertyValue("--bp-dx")), row: Number(d.style.getPropertyValue("--bp-row")) };
+      byLeft.set(left, [...(byLeft.get(left) ?? []), pos]);
+    }
+    for (const dots of byLeft.values()) {
+      const keys = dots.map((p) => `${p.row}:${p.dx}`);
+      expect(new Set(keys).size).toBe(dots.length); // no two dots share a spot
+      for (const p of dots) {
+        expect(p.row).toBeGreaterThanOrEqual(0);
+        expect(Math.abs(p.dx)).toBeLessThanOrEqual(1);
+      }
+    }
+  }
+});

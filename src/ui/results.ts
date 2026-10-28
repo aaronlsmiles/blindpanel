@@ -77,15 +77,21 @@ export function mountResults(el: HTMLElement, o: ResultsOptions): ResultsControl
         "aria-label": `You ${me ?? "no answer"}; panel mean ${mean === null ? "n/a" : mean.toFixed(1)}; raters ${vals.map((v) => v ?? "–").join(", ")}`,
       });
       for (let v = 1; v <= 5; v++) track.append(h("span", { class: "bp-tick", style: `left:${((v - 1) / 4) * 100}%` }));
-      const stack = new Map<number, number>();
+      // raters who gave the same score sit side by side under the line, three to a row
+      const total = new Map<number, number>();
+      for (const v of vals) if (finite(v)) total.set(v, (total.get(v) ?? 0) + 1);
+      const seenAt = new Map<number, number>();
       vals.forEach((v, k) => {
         if (!finite(v)) return;
-        const n = stack.get(v) ?? 0;
-        stack.set(v, n + 1);
+        const n = seenAt.get(v) ?? 0;
+        seenAt.set(v, n + 1);
+        const row = Math.floor(n / 3);
+        const inRow = Math.min(3, total.get(v)! - row * 3);
+        const dx = (n % 3) - (inRow - 1) / 2;
         track.append(
           h("span", {
             class: `bp-dot${raters[k] === author ? " bp-dot-author" : ""}`,
-            style: `left:${((v - 1) / 4) * 100}%;--bp-stack:${n}`,
+            style: `left:${((v - 1) / 4) * 100}%;--bp-dx:${dx};--bp-row:${row}`,
             title: raters[k],
           }),
         );
@@ -108,10 +114,10 @@ export function mountResults(el: HTMLElement, o: ResultsOptions): ResultsControl
       h(
         "figcaption",
         { class: "bp-legend-row" },
-        h("span", { class: "bp-key-you" }), " you  ",
-        h("span", { class: "bp-key-dot" }), " a panel rater  ",
-        h("span", { class: "bp-key-mean" }), " panel mean",
-        ` · scale: ${study.scales[q.scale].labels[0].replace(/\*\*/g, "")} (1) to ${study.scales[q.scale].labels[4].replace(/\*\*/g, "")} (5)`,
+        h("span", { class: "bp-key" }, h("span", { class: "bp-key-you" }), " you"),
+        h("span", { class: "bp-key" }, h("span", { class: "bp-key-dot" }), " a panel rater"),
+        h("span", { class: "bp-key" }, h("span", { class: "bp-key-mean" }), " panel mean"),
+        h("span", { class: "bp-key-scale" }, `Scale: ${study.scales[q.scale].labels[0].replace(/\*\*/g, "")} (1) to ${study.scales[q.scale].labels[4].replace(/\*\*/g, "")} (5)`),
       ),
     );
   }
