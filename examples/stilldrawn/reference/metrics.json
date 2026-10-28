@@ -4,6 +4,10 @@
   "register": 0.2087697206147856,
   "sameness": 0.4776558778120862
  },
+ "caveats": [
+  "Rater AARON is the study's author, who rated first: the register question's bottom label and its guidance note were revised after that pass (A6 addendum 4 and A8), before the other five raters saw the wording shown here. Use the switch to leave the author out.",
+  "The published confidence intervals come from 10,000 bootstrap resamples in the paper's analysis. They are shown as published, not recomputed here."
+ ],
  "metrics": [
   {
    "id": "line_chamfer_mean_px",

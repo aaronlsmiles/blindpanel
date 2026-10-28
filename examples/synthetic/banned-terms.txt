@@ -2,4 +2,4 @@
 engine-alpha
 engine-beta
 engine-gamma
-/engine (alpha|beta|gamma)/
+/engine (alpha|beta|gamma)/i

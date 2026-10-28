@@ -69,8 +69,8 @@ const clips = bundle.items.map((it) => {
     ref: cellToCode[it.cell],
     reference: it.panel,
     sha256: hashes[file],
-    label: `${e.name} (${e.provider})`,
-    meta: { model: e.name, motion: MOTION[it.motion_class], panel: it.panel },
+    label: e.name,
+    meta: { by: e.provider, motion: MOTION[it.motion_class], still: it.panel },
     link: `${EXPLORER}?cell=${encodeURIComponent(row)}&e=${encodeURIComponent(it.engine)}`,
   };
 });
@@ -86,10 +86,10 @@ const study = {
   blinding: { seed: SEED, banned_terms_file: "banned-terms.txt", embedded_provenance: "allow" },
   scales: { hand_drawn: { labels: T.Q3_LABELS }, register: { labels: T.Q1_LABELS }, sameness: { labels: T.Q2_LABELS } },
   questions: [
-    { id: "hand_drawn", part: "baseline", text: T.Q3, direction: DIR_Q, notes: [bold(T.Q1_MECH)], scale: "hand_drawn" },
-    { id: "register", part: "clips", text: T.Q1, direction: DIR_Q, notes: [bold(T.Q1_MECH)], intro_notes: [bold(T.Q1_TONE)], scale: "register" },
+    { id: "hand_drawn", short: "Still looks hand-drawn", part: "baseline", text: T.Q3, direction: DIR_Q, notes: [bold(T.Q1_MECH)], scale: "hand_drawn" },
+    { id: "register", short: "Still looks hand-drawn", part: "clips", text: T.Q1, direction: DIR_Q, notes: [bold(T.Q1_MECH)], intro_notes: [bold(T.Q1_TONE)], scale: "register" },
     {
-      id: "sameness", part: "clips", text: T.Q2,
+      id: "sameness", short: "Same image throughout", part: "clips", text: T.Q2,
       direction: "5 = yes, unchanged at every point · 1 = no, it became a different picture",
       notes: [bold(T.Q2_NOTE), bold(T.Q2_CONT)], scale: "sameness",
     },
@@ -137,6 +137,10 @@ const byCode = Object.fromEntries(bundle.items.map((it) => [cellToCode[it.cell],
 const metrics = {
   source: "analysis/human_check/human_check_results.json and the headline table, StillDrawn v1.0.0",
   alpha: Object.fromEntries(Object.entries(results.per_axis).map(([q, v]) => [q, v.krippendorff_alpha_ordinal])),
+  caveats: [
+    "Rater AARON is the study's author, who rated first: the register question's bottom label and its guidance note were revised after that pass (A6 addendum 4 and A8), before the other five raters saw the wording shown here. Use the switch to leave the author out.",
+    "The published confidence intervals come from 10,000 bootstrap resamples in the paper's analysis. They are shown as published, not recomputed here.",
+  ],
   metrics: METRICS.map(([key, id, label]) => ({
     id,
     label,

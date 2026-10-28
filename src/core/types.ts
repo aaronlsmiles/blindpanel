@@ -26,6 +26,7 @@ export type PartName = "baseline" | "clips";
 
 export interface Question {
   id: string;
+  short?: string;
   part: PartName;
   text: string;
   direction?: string;
@@ -64,6 +65,8 @@ export interface Reference {
   ratings: Record<string, (number | null)[][]>;
   metrics: Metric[];
   published_alpha?: Record<string, number>;
+  /** study-specific caveats shown with the results */
+  caveats?: string[];
   attribution?: string;
 }
 

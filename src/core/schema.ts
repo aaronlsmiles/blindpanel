@@ -33,6 +33,8 @@ const Clip = z.strictObject({
 
 const Question = z.strictObject({
   id: Id,
+  /** a short name for results headings (not part of the instrument wording) */
+  short: z.string().min(1).max(60).optional(),
   part: z.enum(["baseline", "clips"]),
   text: Wording,
   direction: Wording.optional(),

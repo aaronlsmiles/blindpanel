@@ -1,29 +1,33 @@
 # Model, vendor and tool names that must not reach the page, its URLs or its
 # requests before the visitor finishes. Plain lines match as case-insensitive
-# substrings; /…/ lines are case-insensitive regular expressions.
+# substrings. /…/flags lines are regular expressions with their own flags
+# (/x/i ignores case; /x/ is case-sensitive).
 runway
-/gen-?4/
+/gen-?4/i
 gen45
 gen4t
 turbo
-/\bwan\b/
-/wan ?2/
+/\bwan\b/i
+/wan ?2/i
 ltx
 lightricks
-/\bh3\b/
+# the model is called "H3"; the HTML tag h3 is not a leak
+/\bH3\b/
+h3-fal
+_h3
 hunyuan
 minimax
-/\bfal\b/
+/\bfal\b/i
 fal.ai
 seedance
 bytedance
 comfyui
-/stable ?diffusion/
+/stable ?diffusion/i
 kling
-/\bsora\b/
-/\bveo\b/
-/\bluma\b/
-/\bpika\b/
+/\bsora\b/i
+/\bveo\b/i
+/\bluma\b/i
+/\bpika\b/i
 gemini
 # StillDrawn cell ids name the motion class next to the engine
-/_(idle|burst|campush)_/
+/_(idle|burst|campush)_/i

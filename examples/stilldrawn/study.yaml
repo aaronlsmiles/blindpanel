@@ -36,6 +36,7 @@ scales:
       - "Yes: nothing has been added, removed or replaced"
 questions:
   - id: hand_drawn
+    short: Still looks hand-drawn
     part: baseline
     text: Does this original still image look like a hand-drawn black-and-white ink picture?
     direction: 5 = yes, completely · 1 = no, not at all
@@ -43,6 +44,7 @@ questions:
       - "Ink can stop looking hand-drawn **without** becoming photographic. Look for marks that no one drawing by hand would make: contours gone soft or blurred, edges that fade instead of ending crisply, lines that smear, warp or run together in ways a pen or brush would not, or shading that has turned into a smooth gradient instead of line or tone. **Clean, even linework, flat solid blacks and regular screentone are normal in manga and are not, by themselves, a departure.**"
     scale: hand_drawn
   - id: register
+    short: Still looks hand-drawn
     part: clips
     text: Does this clip still look like a hand-drawn black-and-white ink picture, all the way through?
     direction: 5 = yes, completely · 1 = no, not at all
@@ -52,6 +54,7 @@ questions:
       - A slight overall shift in paper tone or brightness belongs here, mildly — a 4 rather than a 5. It is not a question-2 change.
     scale: register
   - id: sameness
+    short: Same image throughout
     part: clips
     text: Apart from the movement itself, is this the same original image throughout?
     direction: 5 = yes, unchanged at every point · 1 = no, it became a different picture
@@ -124,201 +127,201 @@ items:
       ref: c01
       reference: cu-line-3
       sha256: add4ea0cc9637e99dcfc8e9327ba00a551adacdbb74697ccb3aff9ac3e37875c
-      label: H3 (MiniMax, via fal)
+      label: H3
       meta:
-        model: H3
+        by: MiniMax, via fal
         motion: camera push
-        panel: cu-line-3
+        still: cu-line-3
       link: https://stilldrawn.studionephele.com/explore?cell=cu-line-3_campush&e=h3-fal
     - id: cu-tone-2_campush_h3
       ref: c02
       reference: cu-tone-2
       sha256: c688584964c52e334e32a44348aad608735cd065331a377ed638e4b4068e05dc
-      label: H3 (MiniMax, via fal)
+      label: H3
       meta:
-        model: H3
+        by: MiniMax, via fal
         motion: camera push
-        panel: cu-tone-2
+        still: cu-tone-2
       link: https://stilldrawn.studionephele.com/explore?cell=cu-tone-2_campush&e=h3-fal
     - id: act-line-2_burst_ltx23
       ref: c03
       reference: act-line-2
       sha256: d6357a50d940746cac5119db7547d8d7c8b9cecba1397b3c12ca50311a4dc9ec
-      label: LTX-2.3 (Lightricks (open weights))
+      label: LTX-2.3
       meta:
-        model: LTX-2.3
+        by: Lightricks (open weights)
         motion: burst
-        panel: act-line-2
+        still: act-line-2
       link: https://stilldrawn.studionephele.com/explore?cell=act-line-2_burst&e=ltx23
     - id: act-black-1_campush_gen45
       ref: c04
       reference: act-black-1
       sha256: 1abf0bd063069e650b60d52c7500d997f5a76b3a46b595118777fbd1fe41576e
-      label: Gen-4.5 (Runway)
+      label: Gen-4.5
       meta:
-        model: Gen-4.5
+        by: Runway
         motion: camera push
-        panel: act-black-1
+        still: act-black-1
       link: https://stilldrawn.studionephele.com/explore?cell=act-black-1_campush&e=gen4.5
     - id: chain-est-cosmic-1_idle_gen45
       ref: c05
       reference: chain-est-cosmic-1
       sha256: d601f049e295e811a3cbf2e396525750a9a3492db98beadbf06bc2c62c7be735
-      label: Gen-4.5 (Runway)
+      label: Gen-4.5
       meta:
-        model: Gen-4.5
+        by: Runway
         motion: idle
-        panel: chain-est-cosmic-1
+        still: chain-est-cosmic-1
       link: https://stilldrawn.studionephele.com/explore?cell=chain-est-cosmic-1_idle&e=gen4.5
     - id: cu-line-3_campush_gen4t
       ref: c06
       reference: cu-line-3
       sha256: 2bcd3dfec983729c3699b9141fe9276718611a9a8e0912ae5230b0e766c7662d
-      label: Gen-4 Turbo (Runway)
+      label: Gen-4 Turbo
       meta:
-        model: Gen-4 Turbo
+        by: Runway
         motion: camera push
-        panel: cu-line-3
+        still: cu-line-3
       link: https://stilldrawn.studionephele.com/explore?cell=cu-line-3_campush&e=gen4_turbo
     - id: cip-act-tank-1_idle_ltx23
       ref: c07
       reference: cip-act-tank-1
       sha256: d2ba336e3957a99523543226083d5e9a409a77b559882610fdf79d34a40a52ad
-      label: LTX-2.3 (Lightricks (open weights))
+      label: LTX-2.3
       meta:
-        model: LTX-2.3
+        by: Lightricks (open weights)
         motion: idle
-        panel: cip-act-tank-1
+        still: cip-act-tank-1
       link: https://stilldrawn.studionephele.com/explore?cell=cip-act-tank-1_idle&e=ltx23
     - id: est-line-1_idle_gen4t
       ref: c08
       reference: est-line-1
       sha256: a5a7077c0713781e7243f79cb485e3ddf8f024f591f5267f277987eace75e44f
-      label: Gen-4 Turbo (Runway)
+      label: Gen-4 Turbo
       meta:
-        model: Gen-4 Turbo
+        by: Runway
         motion: idle
-        panel: est-line-1
+        still: est-line-1
       link: https://stilldrawn.studionephele.com/explore?cell=est-line-1_idle&e=gen4_turbo
     - id: cip-act-tank-1_burst_gen45
       ref: c09
       reference: cip-act-tank-1
       sha256: 57ac3d00baa9937f293b0afc123fcda5e7e46af05d5be2d467f10dcb74f4d81d
-      label: Gen-4.5 (Runway)
+      label: Gen-4.5
       meta:
-        model: Gen-4.5
+        by: Runway
         motion: burst
-        panel: cip-act-tank-1
+        still: cip-act-tank-1
       link: https://stilldrawn.studionephele.com/explore?cell=cip-act-tank-1_burst&e=gen4.5
     - id: chain-est-cosmic-1_campush_wan22
       ref: c10
       reference: chain-est-cosmic-1
       sha256: 91b80f1a34d8866e2ad0ff39aa7d8cbdb60b8f046df335831c9230faffdf355b
-      label: Wan 2.2 (Wan (open weights))
+      label: Wan 2.2
       meta:
-        model: Wan 2.2
+        by: Wan (open weights)
         motion: camera push
-        panel: chain-est-cosmic-1
+        still: chain-est-cosmic-1
       link: https://stilldrawn.studionephele.com/explore?cell=chain-est-cosmic-1_campush&e=wan22
     - id: cu-line-1_idle_h3
       ref: c11
       reference: cu-line-1
       sha256: c37c6ee4d277682f6a627d9a3f97f3c8b2d1974e02e8d973b6efa29e862e9cf5
-      label: H3 (MiniMax, via fal)
+      label: H3
       meta:
-        model: H3
+        by: MiniMax, via fal
         motion: idle
-        panel: cu-line-1
+        still: cu-line-1
       link: https://stilldrawn.studionephele.com/explore?cell=cu-line-1_idle&e=h3-fal
     - id: cu-line-1_idle_ltx23
       ref: c12
       reference: cu-line-1
       sha256: 39bd1257005b84f36a195fa1d31a0d60d8a54e7e1121378fea878e8a4076b3c5
-      label: LTX-2.3 (Lightricks (open weights))
+      label: LTX-2.3
       meta:
-        model: LTX-2.3
+        by: Lightricks (open weights)
         motion: idle
-        panel: cu-line-1
+        still: cu-line-1
       link: https://stilldrawn.studionephele.com/explore?cell=cu-line-1_idle&e=ltx23
     - id: est-black-1_campush_wan22
       ref: c13
       reference: est-black-1
       sha256: dc0ccb6638d059a16ae30ff23f93da5d3698f64e85855d45469ffdda9b255bf0
-      label: Wan 2.2 (Wan (open weights))
+      label: Wan 2.2
       meta:
-        model: Wan 2.2
+        by: Wan (open weights)
         motion: camera push
-        panel: est-black-1
+        still: est-black-1
       link: https://stilldrawn.studionephele.com/explore?cell=est-black-1_campush&e=wan22
     - id: act-line-2_burst_gen4t
       ref: c14
       reference: act-line-2
       sha256: eb82a26152b20e648add69ed0652228b56ab00600bbc876e3d5aa571aee9ba60
-      label: Gen-4 Turbo (Runway)
+      label: Gen-4 Turbo
       meta:
-        model: Gen-4 Turbo
+        by: Runway
         motion: burst
-        panel: act-line-2
+        still: act-line-2
       link: https://stilldrawn.studionephele.com/explore?cell=act-line-2_burst&e=gen4_turbo
     - id: act-line-1_idle_wan22
       ref: c15
       reference: act-line-1
       sha256: cf7c64c08b7636dba57944f5a81809c2b9990b0fc6b9d62690e4445c8e62558e
-      label: Wan 2.2 (Wan (open weights))
+      label: Wan 2.2
       meta:
-        model: Wan 2.2
+        by: Wan (open weights)
         motion: idle
-        panel: act-line-1
+        still: act-line-1
       link: https://stilldrawn.studionephele.com/explore?cell=act-line-1_idle&e=wan22
     - id: act-black-2_idle_gen4t
       ref: c16
       reference: act-black-2
       sha256: d026f703852104241567e851d3243042cf4c27a972ab98d3d8523f790dd4d7fe
-      label: Gen-4 Turbo (Runway)
+      label: Gen-4 Turbo
       meta:
-        model: Gen-4 Turbo
+        by: Runway
         motion: idle
-        panel: act-black-2
+        still: act-black-2
       link: https://stilldrawn.studionephele.com/explore?cell=act-black-2_idle&e=gen4_turbo
     - id: cu-tone-3_idle_h3
       ref: c17
       reference: cu-tone-3
       sha256: 2887f8caf30739d789e68c0c01326029efa29e119958f3e9fa7aeec5ea176a90
-      label: H3 (MiniMax, via fal)
+      label: H3
       meta:
-        model: H3
+        by: MiniMax, via fal
         motion: idle
-        panel: cu-tone-3
+        still: cu-tone-3
       link: https://stilldrawn.studionephele.com/explore?cell=cu-tone-3_idle&e=h3-fal
     - id: est-line-2_burst_h3
       ref: c18
       reference: est-line-2
       sha256: 081037d7277ec4f3600ec029583da33df95319839e90654bcced8d0219f85d5a
-      label: H3 (MiniMax, via fal)
+      label: H3
       meta:
-        model: H3
+        by: MiniMax, via fal
         motion: burst
-        panel: est-line-2
+        still: est-line-2
       link: https://stilldrawn.studionephele.com/explore?cell=est-line-2_burst&e=h3-fal
     - id: cu-black-3_burst_wan22
       ref: c19
       reference: cu-black-3
       sha256: c12c38a1e35b516730621c8a6813fae5b286cdb9e0d6b1be0e5b36299b00bbdc
-      label: Wan 2.2 (Wan (open weights))
+      label: Wan 2.2
       meta:
-        model: Wan 2.2
+        by: Wan (open weights)
         motion: burst
-        panel: cu-black-3
+        still: cu-black-3
       link: https://stilldrawn.studionephele.com/explore?cell=cu-black-3_burst&e=wan22
     - id: chain-est-cosmic-1_burst_ltx23
       ref: c20
       reference: chain-est-cosmic-1
       sha256: 19a18ca3546588577f9ef1a1b3cc63c6f53de533da42ee9b7aeb23be4acdd079
-      label: LTX-2.3 (Lightricks (open weights))
+      label: LTX-2.3
       meta:
-        model: LTX-2.3
+        by: Lightricks (open weights)
         motion: burst
-        panel: chain-est-cosmic-1
+        still: chain-est-cosmic-1
       link: https://stilldrawn.studionephele.com/explore?cell=chain-est-cosmic-1_burst&e=ltx23
 reference:
   ratings: reference/

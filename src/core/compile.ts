@@ -19,6 +19,8 @@ export interface Compiled {
   /** media to check: URL or local path, with the declared sha256 */
   checks: { url: string; local?: string; sha256?: string }[];
   banned: (string | RegExp)[];
+  /** code -> the key the item has in reference and exported ratings files */
+  refs: { clips: Record<string, string>; panels: Record<string, string> };
 }
 
 const join = (base: string, file: string) =>
@@ -30,7 +32,11 @@ export function parseBanned(text: string): (string | RegExp)[] {
     .split(/\r?\n/)
     .map((l) => l.trim())
     .filter((l) => l && !l.startsWith("#"))
-    .map((l) => (l.length > 2 && l.startsWith("/") && l.endsWith("/") ? new RegExp(l.slice(1, -1), "i") : l));
+    .map((l) => {
+      // "/pattern/flags": a regular expression with its own flags (no "i" means case-sensitive)
+      const m = /^\/(.+)\/([a-z]*)$/.exec(l);
+      return m ? new RegExp(m[1], m[2].replace(/[gy]/g, "")) : l;
+    });
 }
 
 interface RatingsFile {
@@ -61,7 +67,7 @@ export async function compile(c: StudyConfig, io: CompileIO): Promise<Compiled> 
   };
 
   const questions: Question[] = c.questions.map((q) => ({
-    id: q.id, part: q.part, text: q.text, direction: q.direction, notes: q.notes, intro_notes: q.intro_notes, scale: q.scale,
+    id: q.id, ...(q.short ? { short: q.short } : {}), part: q.part, text: q.text, direction: q.direction, notes: q.notes, intro_notes: q.intro_notes, scale: q.scale,
   }));
   const scales = Object.fromEntries(
     Object.entries(c.scales).map(([k, s]) => [k, { min: 1 as const, max: 5 as const, labels: s.labels }]),
@@ -113,7 +119,11 @@ export async function compile(c: StudyConfig, io: CompileIO): Promise<Compiled> 
   };
 
   const banned = c.blinding.banned_terms_file ? parseBanned(io.readText(c.blinding.banned_terms_file)) : [];
-  return { study, reveal, lock: { instrument: c.instrument, text_sha256 }, media, checks, banned };
+  const refs = {
+    clips: Object.fromEntries(c.items.clips.map((x) => [clipCode[x.id], x.ref ?? x.id])),
+    panels: Object.fromEntries(c.items.panels.map((x) => [panelCode[x.id], x.ref ?? x.id])),
+  };
+  return { study, reveal, lock: { instrument: c.instrument, text_sha256 }, media, checks, banned, refs };
 }
 
 function loadReference(c: StudyConfig, io: CompileIO): NonNullable<Reveal["reference"]> {
@@ -139,12 +149,15 @@ function loadReference(c: StudyConfig, io: CompileIO): NonNullable<Reveal["refer
   }
   let metrics: Metric[] = [];
   let published_alpha: Record<string, number> | undefined;
+  let caveats: string[] | undefined;
   if (ref.metrics) {
     const m = JSON.parse(io.readText(ref.metrics)) as {
       alpha?: Record<string, number>;
+      caveats?: string[];
       metrics: (Omit<Metric, "values"> & { values: Record<string, number | null> })[];
     };
     published_alpha = m.alpha;
+    caveats = m.caveats;
     metrics = m.metrics.map((x) => ({ ...x, values: clipRefs.map((r) => x.values[r] ?? null) }));
   }
   return {
@@ -153,6 +166,7 @@ function loadReference(c: StudyConfig, io: CompileIO): NonNullable<Reveal["refer
     ratings,
     metrics,
     ...(published_alpha ? { published_alpha } : {}),
+    ...(caveats?.length ? { caveats } : {}),
     ...(ref.attribution ? { attribution: ref.attribution } : {}),
   };
 }

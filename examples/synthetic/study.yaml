@@ -33,6 +33,7 @@ questions:
     direction: 5 = yes, completely · 1 = no, not at all
     scale: look
   - id: look
+    short: Still a line drawing
     part: clips
     text: Does this clip still look like a clean line drawing, all the way through?
     direction: 5 = yes, completely · 1 = no, not at all
@@ -40,6 +41,7 @@ questions:
     intro_notes: ["A slight change in brightness is a 4 rather than a 5."]
     scale: look
   - id: same
+    short: Same picture throughout
     part: clips
     text: Apart from the movement itself, is this the same picture throughout?
     direction: 5 = yes, unchanged · 1 = no, it became a different picture
