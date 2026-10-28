@@ -8,6 +8,8 @@ export interface Study {
   title: string;
   scales: Record<string, Scale>;
   questions: Question[];
+  /** reference stills: shown beside clips, and rated in the baseline part when there is one */
+  panels: { code: string; image: string }[];
   parts: { baseline: BaselinePart | null; clips: ClipsPart };
   modes: { public: { submit: boolean; tally: boolean; min_crowd_n: number } };
   endpoints: { submit: string; tally: string; reveal: string };
@@ -26,17 +28,20 @@ export interface Question {
   id: string;
   part: PartName;
   text: string;
+  direction?: string;
+  /** shown with the question on every screen */
   notes: string[];
+  /** shown only in the part's introduction */
+  intro_notes: string[];
   scale: string;
 }
 
 export interface BaselinePart {
-  intro: string;
-  items: { code: string; image: string }[];
+  intro: string[];
 }
 
 export interface ClipsPart {
-  intro: string;
+  intro: string[];
   watch_note: string;
   clip_seconds: number;
   session_size: number;

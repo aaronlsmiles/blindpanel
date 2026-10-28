@@ -20,10 +20,10 @@ export const orderKey = (seed: string, part: string, participant: string) =>
   `${seed}:${part}:${participant}`;
 
 export async function participantOrder(study: Study, participant: string): Promise<ParticipantOrder> {
-  const { clips: part, baseline: bpart } = study.parts;
+  const part = study.parts.clips;
   const clips = await shuffle(part.items.map((i) => i.code), orderKey(study.seed, "clips", participant));
-  const baseline = bpart
-    ? await shuffle(bpart.items.map((i) => i.code), orderKey(study.seed, "baseline", participant))
+  const baseline = study.parts.baseline
+    ? await shuffle(study.panels.map((p) => p.code), orderKey(study.seed, "baseline", participant))
     : [];
   const ref = new Map(part.items.map((i) => [i.code, i.reference]));
   const n = Math.min(part.session_size, clips.length);

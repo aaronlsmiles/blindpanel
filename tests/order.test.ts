@@ -24,10 +24,11 @@ function study(): Study {
   return {
     blindpanel: 1, id: "t", instrument: "1", text_sha256: "", seed: "s", title: "t",
     scales: {}, questions: [], privacy: "",
+    panels: panels.map((code) => ({ code, image: `${code}.png` })),
     parts: {
-      baseline: { intro: "", items: panels.map((code) => ({ code, image: `${code}.png` })) },
+      baseline: { intro: [] },
       clips: {
-        intro: "", watch_note: "", clip_seconds: 5, session_size: 3, extend: true,
+        intro: [], watch_note: "", clip_seconds: 5, session_size: 3, extend: true,
         video: { loop: true, muted: true, autoplay: "unless_reduced_motion" }, items: clips,
       },
     },

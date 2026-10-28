@@ -1,0 +1,53 @@
+blindpanel: 1
+id: mini
+title: Mini study
+instrument: "1"
+media:
+  base: ./media/
+  origins: []
+blinding:
+  seed: mini-seed
+  banned_terms_file: banned-terms.txt
+scales:
+  same:
+    labels: ["No", "Mostly not", "Half and half", "Mostly", "Yes"]
+  look:
+    labels: ["No", "Mostly not", "Half and half", "Mostly", "Yes: **fully**"]
+questions:
+  - id: still
+    part: baseline
+    text: Does this still look drawn?
+    scale: look
+  - id: drawn
+    part: clips
+    text: Does this clip still look drawn?
+    direction: 5 = yes · 1 = no
+    notes: ["Look for **machine** marks."]
+    intro_notes: ["A slight tone shift is a 4."]
+    scale: look
+  - id: same
+    part: clips
+    text: Is it the same image throughout?
+    scale: same
+parts:
+  baseline:
+    intro: ["First, rate the stills."]
+  clips:
+    intro: ["Now the clips."]
+    watch_note: Watch the whole clip.
+    clip_seconds: 1
+    session_size: 2
+    extend: true
+items:
+  panels:
+    - { id: panel-a, ref: p01, file: panel-a.png }
+    - { id: panel-b, ref: p02, file: panel-b.png }
+  clips:
+    - { id: clip-a_engine-alpha, ref: c01, reference: panel-a, file: clip-a.mp4, label: Engine Alpha, meta: { motion: idle } }
+    - { id: clip-b_engine-beta, ref: c02, reference: panel-b, file: clip-b.mp4, label: Engine Beta, meta: { motion: burst } }
+    - { id: clip-c_engine-alpha, ref: c03, reference: panel-a, file: clip-c.mp4, label: Engine Alpha, link: "https://example.org/x" }
+reference:
+  ratings: reference/
+  author_slot: R1
+  metrics: reference/metrics.json
+  attribution: Synthetic test data, CC0.

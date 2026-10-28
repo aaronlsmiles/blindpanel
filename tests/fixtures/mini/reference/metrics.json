@@ -1,0 +1,1 @@
+{"alpha":{"drawn":0.5},"metrics":[{"id":"drift","label":"Line drift (px)","worse":"higher","values":{"c01":0.5,"c02":4.2,"c03":null},"published":{"drawn":{"rho":-0.9,"ci95":[-1,-0.2],"n":2}}}]}
