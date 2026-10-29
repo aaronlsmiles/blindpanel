@@ -31,6 +31,7 @@ Card: P10, folded into P01's plan on 28 Oct · Started: 2026-10-28 · Public slu
 | 3 | 2026-10-28 | Server and SQL: handlers over memory, file and Supabase stores; `sql/schema.sql` in PGlite | RLS forced, no policies; public roles denied everything incl. `tally()`; service role select/insert only; PT429 caps; SQL tally = JS tally | yes | 0 |
 | 4 | 2026-10-28 | UI, CLI, verify, examples, setup, e2e | 140 unit tests; 24 Playwright runs (1440/390 × light/dark, axe WCAG 2.2 AA serious = 0, console clean); verify fails on each of 10 doctored builds | yes | 0 |
 | 5 | 2026-10-28 | StillDrawn media at opaque R2 paths (`blindpanel/stilldrawn/<code>`), byte-exact, no custom metadata | 34 objects; `verify --media`: all reachable, sha256 = release, no model in headers; re-run uploads 0 | yes | 0 |
+| 6 | 2026-10-29 | Phase 4, in the explorer's `/rate`: fixes found by the first host, each test first with a CHANGELOG line | Metric cells wrap (results fit 320 px and wide host fonts); the e2e overflow check uses the configured viewport (it could not fail under mobile emulation); docs: hosts layer their resets below `blindpanel`. 140 unit, 28 e2e with StillDrawn; a clean clone at `3695410` passes `npm run setup -- --ci`. Live: `sql/schema.sql` applied to the explorer's project, privileges checked as postgres, and `report --store supabase` read the live rows | yes | 0 |
 
 ## Spend: £0 of £0
 
@@ -54,5 +55,6 @@ Card: P10, folded into P01's plan on 28 Oct · Started: 2026-10-28 · Public slu
 
 ## Next
 
-- Phase 4 (sub-plan D): mount at `/rate` in the explorer; Supabase schema; api wrappers; keep-warm cron.
+- Phase 4 done 29 Oct: the demo runs at `/rate` on the explorer's login-protected preview against the live database. The explorer vendors this repo at `26e3063` (untagged; v0.1.0 is tagged at G5).
+- For Phase 5 or v0.1.1 (Aaron's call): `tabular-nums` on all `.bp` text gives punctuation tabular spacing in some fonts (scope it to figures); the reveal table breaks words at 390; `loadTally` could take a `fresh` flag so the standalone page also reads past the cache after an opt-in (the explorer does it in its wrapper); `blindpanel db check` (the explorer's `tools/supabase/check.sql` is the working version).
 - G5: push and create the GitHub repo (then CI and clean-clone.yml run on fresh runners).
