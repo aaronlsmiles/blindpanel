@@ -34,6 +34,14 @@ import "blindpanel/ui/style.css";
 
 Alternatively, deploy the folder `blindpanel build` writes as static files. Theme it by setting the `--bp-*` custom properties on `.bp` (see `src/ui/style.css`).
 
+The kit's rules sit in the cascade layer `blindpanel`, so any unlayered rule of yours wins. That includes global resets: a reset such as `button { color: inherit }` overrides the kit's button colours and can make "Start" and "Next" unreadable. Put resets in a layer declared before the kit's, and leave your theme unlayered:
+
+```css
+@layer reset, blindpanel;          /* first, before any other CSS */
+@layer reset { button { color: inherit; } }
+.bp { --bp-ink: var(--text); }     /* unlayered: still wins */
+```
+
 ## 4. Check it live
 
 `blindpanel verify study.yaml --dist <build> --media` checks the files and every remote media URL. After deploying, submit one session by hand and confirm that `blindpanel report --store supabase` sees it (run it with `SUPABASE_URL` and `SUPABASE_SECRET_KEY` in the environment, e.g. through your secret manager's `run` command).
