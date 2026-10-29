@@ -518,6 +518,7 @@
     text-underline-offset: 2px;
   }
   .bp-caveats {
+    list-style: disc; /* said outright, like .bp-key: a host reset would otherwise drop the bullets */
     font-size: 14px;
     color: var(--bp-muted);
     padding-left: 1.25em;

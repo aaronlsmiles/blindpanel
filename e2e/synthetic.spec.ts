@@ -139,8 +139,9 @@ test("results fit a 320 px phone even in a wide host font", async ({ page }) => 
   // a host theme may set any font; monospace is the widest generic one
   await page.addInitScript(() => addEventListener("DOMContentLoaded", () => {
     const s = document.createElement("style");
-    s.textContent = ".bp { --bp-font: monospace; }";
-    document.head.append(s);
+    // and a host reset that strips list styles in a layer below the kit's
+    s.textContent = "@layer reset, blindpanel; @layer reset { ul, ol { list-style: none; padding: 0; } } .bp { --bp-font: monospace; }";
+    document.head.prepend(s);
   }));
   await page.goto(BASE);
   await page.getByRole("button", { name: "Start" }).click();
@@ -154,6 +155,7 @@ test("results fit a 320 px phone even in a wide host font", async ({ page }) => 
   await page.getByRole("button", { name: "See where you land" }).click();
   await expect(page.getByRole("heading", { name: "Where you land" })).toBeVisible();
   await expectNoOverflow(page);
+  for (const l of await page.locator("ul.bp-caveats").all()) expect(await l.evaluate((e) => getComputedStyle(e).listStyleType)).toBe("disc");
   // the reveal table squeezes its columns, but never breaks a clip's number, a model's name or "Open"
   await expectWholeWords(page, ".bp-reveal tbody th, .bp-reveal tbody td:nth-child(2), .bp-reveal tbody td:last-child");
   c.expectClean();
