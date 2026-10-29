@@ -17,10 +17,15 @@ export async function expectAccessible(page: Page) {
   expect(serious.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`)).toEqual([]);
 }
 
-/** The page must never be wider than the viewport (a mobile browser would zoom out). */
+/**
+ * The page must never be wider than the viewport (a mobile browser would zoom out).
+ * Compares with the configured viewport: under isMobile, innerWidth grows to fit
+ * overflowing content, so it can't be the yardstick.
+ */
 export async function expectNoOverflow(page: Page) {
-  const w = await page.evaluate(() => ({ doc: document.documentElement.scrollWidth, view: window.innerWidth }));
-  expect(w.doc, `page is ${w.doc}px wide in a ${w.view}px viewport`).toBeLessThanOrEqual(w.view);
+  const view = page.viewportSize()!.width;
+  const doc = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(doc, `page is ${doc}px wide in a ${view}px viewport`).toBeLessThanOrEqual(view);
 }
 
 export async function shot(page: Page, info: TestInfo, name: string) {

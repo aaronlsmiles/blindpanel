@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { expectAccessible, shot, state, watchConsole } from "./helpers.js";
+import { expectAccessible, expectNoOverflow, shot, state, watchConsole } from "./helpers.js";
 
 const BASE = "http://localhost:5310/";
 
@@ -123,4 +123,28 @@ test("the tally endpoint is cacheable and hides nothing it shouldn't", async ({ 
   expect(r.status()).toBe(200);
   expect(r.headers()["cache-control"]).toBe("public, s-maxage=300, stale-while-revalidate=3600");
   expect(await r.text()).not.toMatch(/engine/i);
+});
+
+test("results fit a 320 px phone even in a wide host font", async ({ page }) => {
+  const c = watchConsole(page);
+  await page.setViewportSize({ width: 320, height: 700 });
+  // a host theme may set any font; monospace is the widest generic one
+  await page.addInitScript(() => addEventListener("DOMContentLoaded", () => {
+    const s = document.createElement("style");
+    s.textContent = ".bp { --bp-font: monospace; }";
+    document.head.append(s);
+  }));
+  await page.goto(BASE);
+  await page.getByRole("button", { name: "Start" }).click();
+  for (;;) {
+    const h = (await page.getByRole("heading", { level: 2 }).textContent()) ?? "";
+    if (h.startsWith("Done")) break;
+    for (const fs of await page.locator("fieldset").all()) await fs.getByRole("radio").nth(h.startsWith("Clip 2") ? 1 : 3).check();
+    await page.getByRole("button", { name: "Next" }).click();
+  }
+  await expectNoOverflow(page);
+  await page.getByRole("button", { name: "See where you land" }).click();
+  await expect(page.getByRole("heading", { name: "Where you land" })).toBeVisible();
+  await expectNoOverflow(page);
+  c.expectClean();
 });

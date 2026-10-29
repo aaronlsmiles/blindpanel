@@ -30,6 +30,8 @@ export interface ResultsController {
 }
 
 const f2 = (v: number | null | undefined) => (finite(v) ? (v < 0 ? "−" : "") + Math.abs(v).toFixed(2) : "n/a");
+// a number cell wraps only between these pieces, so narrow hosts and wide fonts still fit
+const nb = (t: string) => h("span", { class: "bp-nb" }, t);
 
 export function mountResults(el: HTMLElement, o: ResultsOptions): ResultsController {
   const { study, reveal, submission } = o;
@@ -153,9 +155,9 @@ export function mountResults(el: HTMLElement, o: ResultsOptions): ResultsControl
             "tr",
             {},
             h("th", { scope: "row" }, m.label),
-            h("td", { class: "bp-num-col" }, `${f2(m.rho_you)} (n ${m.n})`),
-            h("td", { class: "bp-num-col" }, m.published ? `${f2(m.published.rho)} (n ${m.published.n})` : "–"),
-            h("td", { class: "bp-num-col" }, m.published?.ci95 ? `${f2(m.published.ci95[0])} to ${f2(m.published.ci95[1])}` : "–"),
+            h("td", { class: "bp-num-col" }, nb(f2(m.rho_you)), " ", nb(`(n ${m.n})`)),
+            h("td", { class: "bp-num-col" }, ...(m.published ? [nb(f2(m.published.rho)), " ", nb(`(n ${m.published.n})`)] : ["–"])),
+            h("td", { class: "bp-num-col" }, ...(m.published?.ci95 ? [nb(`${f2(m.published.ci95[0])} to`), " ", nb(f2(m.published.ci95[1]))] : ["–"])),
           ),
         ),
       ),

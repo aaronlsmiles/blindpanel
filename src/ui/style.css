@@ -476,6 +476,8 @@
   }
   .bp-num-col {
     text-align: right !important;
+  }
+  .bp-nb {
     white-space: nowrap;
   }
   .bp-you-row th,
