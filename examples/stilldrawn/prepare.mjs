@@ -80,7 +80,7 @@ const DIR_Q = "5 = yes, completely · 1 = no, not at all";
 const study = {
   blindpanel: 1,
   id: "stilldrawn",
-  title: "Rate it yourself: StillDrawn's human check",
+  title: "StillDrawn's human check",
   instrument: "A6",
   media: { base: BASE, origins: ["https://media.studionephele.com"] },
   blinding: { seed: SEED, banned_terms_file: "banned-terms.txt", embedded_provenance: "allow" },
