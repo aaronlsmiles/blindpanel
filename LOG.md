@@ -37,3 +37,5 @@ StillDrawn Explorer's design pass looked at the kit inside a real page and found
 - **A stale build under test.** The e2e suite serves `dist/`, so a run straight after a source edit tests the old code. Every round now builds first.
 
 After an opt-in, the results also ask for the tally once more with `fresh: true`, so the visitor who just added their ratings is counted (the endpoint is cached at the edge for five minutes).
+
+A motion review the same afternoon found one more: the options' and buttons' hover fill wasn't gated to devices that hover, and their 160 ms ease applied to every change of state, so a choice made with a number key faded in and a tap on a phone left its fill behind. The ease now runs only while a pointer hovers. The first test for it couldn't fail: in Chromium's phone emulation a synthetic pointer never triggers `:hover`, so the test now reads the stylesheet and requires every `:hover` rule to sit under `(hover: hover)`.
