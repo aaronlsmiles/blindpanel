@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { expectAccessible, expectNoOverflow, shot, state, watchConsole } from "./helpers.js";
+import { expectAccessible, expectNoOverflow, expectWholeWords, shot, state, watchConsole } from "./helpers.js";
 
 const BASE = "http://localhost:5310/";
 
@@ -73,13 +73,21 @@ test("results only after finishing: reveal.json is not requested before", async 
   await expect(page.getByRole("cell", { name: "Engine Alpha" })).toBeVisible();
   await expect(page.locator('[data-bp="headline"]').first()).toContainText(/You agree with the panel's average|answers to this question were the same/);
   await expect(page.getByRole("heading", { name: "Other visitors" })).toBeVisible();
+  // tabular figures where numbers line up; prose keeps the face's own spacing
+  const numeric = (sel: string) => page.locator(sel).first().evaluate((e) => getComputedStyle(e).fontVariantNumeric);
+  expect(await numeric(".bp-table td")).toBe("tabular-nums");
+  expect(await numeric(".bp-axis")).toBe("tabular-nums");
+  expect(await numeric('[data-bp="headline"]')).toBe("normal");
+  expect(await numeric(".bp-section p")).toBe("normal");
 
   // opt in: 200, and the same body again is refused as a duplicate
+  const freshTally = page.waitForRequest((r) => /\/api\/tally\?fresh=[0-9a-f-]{36}$/.test(r.url()));
   const sent = page.waitForRequest((r) => r.url().endsWith("/api/submit"));
   await page.getByRole("button", { name: "Add my ratings to the public tally" }).click();
   await expect(page.getByText("Added. Thank you.")).toBeVisible();
   const body = (await sent).postData()!;
   expect(body).not.toMatch(/engine|userAgent|Mozilla/i);
+  await freshTally; // the standalone page reads past the edge cache once this visitor has opted in
   const again = await page.request.post(BASE + "api/submit", { data: body, headers: { "content-type": "application/json", origin: BASE.slice(0, -1) } });
   expect(again.status()).toBe(409);
   await expect(page.getByRole("button", { name: "Add my ratings to the public tally" })).toBeDisabled();
@@ -146,5 +154,34 @@ test("results fit a 320 px phone even in a wide host font", async ({ page }) => 
   await page.getByRole("button", { name: "See where you land" }).click();
   await expect(page.getByRole("heading", { name: "Where you land" })).toBeVisible();
   await expectNoOverflow(page);
+  // the reveal table squeezes its columns, but never breaks a clip's number, a model's name or "Open"
+  await expectWholeWords(page, ".bp-reveal tbody th, .bp-reveal tbody td:nth-child(2), .bp-reveal tbody td:last-child");
   c.expectClean();
+});
+
+test("each question's legend sits under its rule, not on it", async ({ page }) => {
+  await page.goto(BASE);
+  await page.getByRole("button", { name: "Start" }).click();
+  while (/^Still/.test((await page.getByRole("heading", { level: 2 }).textContent()) ?? "")) {
+    for (const fs of await page.locator("fieldset").all()) await fs.getByRole("radio").nth(3).check();
+    await page.getByRole("button", { name: "Next" }).click();
+  }
+  const gaps = await page.locator("fieldset.bp-q").evaluateAll((fss) =>
+    fss.map((fs) => fs.querySelector("legend")!.getBoundingClientRect().top - (fs.getBoundingClientRect().top + parseFloat(getComputedStyle(fs).borderTopWidth))),
+  );
+  expect(gaps.length).toBeGreaterThan(0);
+  for (const g of gaps) expect(g).toBeGreaterThanOrEqual(8);
+});
+
+test("the scale keys keep their numbers when a host resets lists in its own lower layer", async ({ page }) => {
+  // the explorer's reset (`ul, ol { list-style: none }` in @layer reset, declared before blindpanel) hid them
+  await page.addInitScript(() => addEventListener("DOMContentLoaded", () => {
+    const s = document.createElement("style");
+    s.textContent = "@layer reset, blindpanel; @layer reset { ul, ol { list-style: none; padding: 0; } }";
+    document.head.prepend(s);
+  }));
+  await page.goto(BASE);
+  const keys = page.locator("ol.bp-key");
+  await expect(keys.first()).toBeVisible();
+  for (const k of await keys.all()) expect(await k.evaluate((e) => getComputedStyle(e).listStyleType)).toBe("decimal");
 });

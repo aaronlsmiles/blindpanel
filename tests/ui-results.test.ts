@@ -128,6 +128,29 @@ describe("opt-in and crowd", () => {
   });
 });
 
+test("after this visitor's own opt-in the tally is read fresh, once; a failed opt-in doesn't re-read", async () => {
+  const submission = await sub(study, () => 2);
+  const calls: unknown[] = [];
+  mount({
+    study, reveal, submission,
+    onSubmit: async () => ({ ok: true, status: 200 }),
+    loadTally: async (o) => {
+      calls.push(o);
+      return { study: "synthetic", n_sessions: calls.length - 1, items: {} };
+    },
+  });
+  await vi.waitFor(() => expect(text()).toContain("0 visitors have added their ratings so far."));
+  document.querySelector<HTMLButtonElement>('[data-bp="submit"]')!.click();
+  await vi.waitFor(() => expect(text()).toContain("1 visitor has added their ratings so far."));
+  expect(calls).toEqual([{ fresh: false }, { fresh: true }]);
+  cleanup();
+  calls.length = 0;
+  mount({ study, reveal, submission, onSubmit: async () => ({ ok: false, status: 500 }), loadTally: async (o) => (calls.push(o), { study: "synthetic", n_sessions: 0, items: {} }) });
+  document.querySelector<HTMLButtonElement>('[data-bp="submit"]')!.click();
+  await vi.waitFor(() => expect(text()).toContain("Couldn't add them just now"));
+  expect(calls).toEqual([{ fresh: false }]);
+});
+
 test("tied raters sit side by side in rows of three, never stacked upward", async () => {
   const submission = await sub(sd.study, () => 4);
   mount({ ...sd, submission });

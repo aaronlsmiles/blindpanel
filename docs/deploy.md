@@ -32,6 +32,8 @@ import { mountSession, mountResults } from "blindpanel/ui";
 import "blindpanel/ui/style.css";
 ```
 
+`mountResults(el, { study, reveal, submission, onSubmit, loadTally })` takes the opt-in and the tally as callbacks, so your app decides how to reach its API. `loadTally({ fresh })` gets `fresh: true` once, right after the visitor's own opt-in succeeded: the tally is edge-cached for 5 minutes, so read past the cache then (the standalone page adds a random `?fresh=` key), or the count leaves out the visitor who just added theirs.
+
 Alternatively, deploy the folder `blindpanel build` writes as static files. Theme it by setting the `--bp-*` custom properties on `.bp` (see `src/ui/style.css`).
 
 The kit's rules sit in the cascade layer `blindpanel`, so any unlayered rule of yours wins. That includes global resets: a reset such as `button { color: inherit }` overrides the kit's button colours and can make "Start" and "Next" unreadable. Put resets in a layer declared before the kit's, and leave your theme unlayered:

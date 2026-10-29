@@ -43,8 +43,9 @@ export async function bootStandalone(el: HTMLElement, base = "./") {
         });
         return { ok: r.ok, status: r.status };
       },
-      loadTally: async () => {
-        const r = await fetch(url(study.endpoints.tally));
+      // after an opt-in, a random key reaches the function past the edge cache
+      loadTally: async ({ fresh }) => {
+        const r = await fetch(url(study.endpoints.tally) + (fresh ? `?fresh=${crypto.randomUUID()}` : ""));
         if (!r.ok) throw new Error(String(r.status));
         return (await r.json()) as Tally;
       },

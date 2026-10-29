@@ -24,6 +24,12 @@
     color: var(--bp-ink);
     max-width: 72rem;
     margin-inline: auto;
+  }
+  /* tabular figures where numbers line up or update; prose keeps the face's own spacing
+     (some faces' tnum also widens . , : %, which reads "0 . 78" in a sentence) */
+  .bp-table,
+  .bp-axis,
+  .bp-progress {
     font-variant-numeric: tabular-nums;
   }
   @media (prefers-color-scheme: dark) {
@@ -126,6 +132,7 @@
   .bp-key {
     margin: 0 0 12px;
     padding-left: 1.5em;
+    list-style: decimal; /* said outright: a host's list reset would otherwise drop the 1–5 */
     font-size: 14px;
   }
 
@@ -178,6 +185,14 @@
     font-weight: 600;
     padding: 0;
     margin-bottom: 4px;
+  }
+  /* a floated legend sits inside the fieldset, under its top rule, instead of on the rule */
+  .bp-q > .bp-legend {
+    float: left;
+    width: 100%;
+  }
+  .bp-q > .bp-legend + * {
+    clear: both;
   }
   .bp-scale {
     display: grid;
@@ -489,8 +504,14 @@
   .bp-you-row td {
     box-shadow: none;
   }
-  .bp-reveal {
-    overflow-wrap: anywhere;
+  /* the clip, the model and the link never break inside a word; the details wrap at spaces
+     and hyphens, and break a long word only when nothing else fits */
+  .bp-reveal tbody th,
+  .bp-reveal td:last-child {
+    white-space: nowrap;
+  }
+  .bp-reveal td {
+    overflow-wrap: break-word;
   }
   .bp a {
     color: var(--bp-ink);

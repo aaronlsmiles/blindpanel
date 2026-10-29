@@ -3,7 +3,7 @@
 // raters' rounded mean. It shows what "where you land" looks like for a consensus rater.
 import { expect, test } from "@playwright/test";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { expectAccessible, shot, watchConsole } from "./helpers.js";
+import { expectAccessible, expectWholeWords, shot, watchConsole } from "./helpers.js";
 
 const BASE = "http://localhost:5311/";
 const SESSION = "5d1e7a2c-3b4f-4a6d-8e9f-0c1b2a3d4e5f";
@@ -58,6 +58,8 @@ test("scripted session: where a consensus rater lands", async ({ page }, info) =
   await page.getByRole("button", { name: "See where you land" }).click();
   await expect(page.getByRole("heading", { name: "Where you land" })).toBeVisible();
   await expectAccessible(page);
+  // "Clip 1", the model names and "Open" never split mid-word, at 390 too
+  await expectWholeWords(page, ".bp-reveal tbody th, .bp-reveal tbody td:nth-child(2), .bp-reveal tbody td:last-child");
   await shot(page, info, "sd-results");
   const out = {
     project: info.project.name,

@@ -25,3 +25,15 @@
 **What blinding can't do.** The 20 StillDrawn clips are byte-identical to the release, so their C2PA credentials remain. The docs say so (docs/blinding.md). `reveal.json` is a static file, so a direct request reads it.
 
 **Spend:** £0.
+
+## 2026-10-29: the first host's design pass
+
+StillDrawn Explorer's design pass looked at the kit inside a real page and found five things the synthetic example never showed.
+
+- **Tabular figures on every word.** The kit set `tabular-nums` on all of its text. In the host's face (Schibsted Grotesk), `tnum` also gives `. , : % ×` a digit's width, so sentences read "0 . 78" and "first , then". The kit's default face (system-ui) doesn't do that, which is why it went unseen. Tabular figures now sit only where numbers line up: tables, the strip's scale and the progress count.
+- **A reveal table that broke words.** `overflow-wrap: anywhere` on the whole table let a phone split "Open", "Clip 1" and "LTX-2.3". The 320 px wide-font test didn't catch it, because the synthetic example's labels are short; the check runs on the StillDrawn session too now, where it failed on all eight "Open" links first.
+- **A legend on its rule.** Each question's `<legend>` sat on its fieldset's top border, with the rule running on after it. It is floated now, so it sits under the rule, as the intro's questions do.
+- **Numbers that belonged to the browser.** The intro's scale keys used the browser's own list numbers. The host's list reset, in a layer below the kit's, still removed them: the kit never said `list-style` itself.
+- **A stale build under test.** The e2e suite serves `dist/`, so a run straight after a source edit tests the old code. Every round now builds first.
+
+After an opt-in, the results also ask for the tally once more with `fresh: true`, so the visitor who just added their ratings is counted (the endpoint is cached at the edge for five minutes).

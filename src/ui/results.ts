@@ -17,8 +17,12 @@ export interface ResultsOptions {
   submission: Submission;
   /** sends the submission (POST to study.endpoints.submit); omit to hide the opt-in */
   onSubmit?: () => Promise<SubmitResult>;
-  /** reads the crowd tally; omit to hide it */
-  loadTally?: () => Promise<Tally>;
+  /**
+   * reads the crowd tally; omit to hide it. `fresh` is true once, right after this visitor's
+   * own opt-in succeeded: read past any cache (the tally endpoint is edge-cached for minutes),
+   * or the count leaves them out
+   */
+  loadTally?: (opts: { fresh: boolean }) => Promise<Tally>;
   /** start with the study's author left out of the panel */
   excludeAuthor?: boolean;
 }
@@ -253,7 +257,7 @@ export function mountResults(el: HTMLElement, o: ResultsOptions): ResultsControl
       }
       if (r.ok) {
         status.textContent = "Added. Thank you.";
-        refreshCrowd?.();
+        refreshCrowd?.(true);
       }
       else if (r.status === 409) status.textContent = "These ratings were already added.";
       else if (r.status === 429) status.textContent = "The tally isn't taking more ratings today. Your results here are unaffected.";
@@ -272,12 +276,12 @@ export function mountResults(el: HTMLElement, o: ResultsOptions): ResultsControl
     );
   }
 
-  let refreshCrowd: (() => void) | undefined;
+  let refreshCrowd: ((fresh: boolean) => void) | undefined;
   function crowd() {
     if (!o.loadTally || !study.modes.public.tally) return null;
     const box = h("section", { class: "bp-section bp-crowd", "aria-live": "polite" }, h("h3", {}, "Other visitors"), h("p", {}, "Loading the tally…"));
-    refreshCrowd = () => void load();
-    const load = () => o.loadTally!().then(
+    refreshCrowd = (fresh) => void load(fresh);
+    const load = (fresh = false) => o.loadTally!({ fresh }).then(
       (t) => {
         const lines: string[] = [];
         for (const [k, q] of clipQs.entries()) {

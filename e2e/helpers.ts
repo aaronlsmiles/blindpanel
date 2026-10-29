@@ -38,3 +38,24 @@ export const state = (page: Page) =>
     const k = Object.keys(localStorage).find((x) => x.startsWith("blindpanel:"));
     return k ? JSON.parse(localStorage.getItem(k)!) : null;
   });
+
+/** No word in these elements is split across two lines (whitespace is the only place a line may break). */
+export async function expectWholeWords(page: Page, selector: string) {
+  const broken = await page.locator(selector).evaluateAll((els) =>
+    els.flatMap((el) => {
+      const out: string[] = [];
+      const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+        for (const m of (n.textContent ?? "").matchAll(/\S+/g)) {
+          const r = document.createRange();
+          r.setStart(n, m.index!);
+          r.setEnd(n, m.index! + m[0].length);
+          const tops = new Set([...r.getClientRects()].filter((q) => q.width > 0).map((q) => Math.round(q.top)));
+          if (tops.size > 1) out.push(m[0]);
+        }
+      }
+      return out;
+    }),
+  );
+  expect(broken, "words broken across lines").toEqual([]);
+}
