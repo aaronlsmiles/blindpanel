@@ -218,7 +218,6 @@
     font-size: 14px;
     line-height: 1.35;
     cursor: pointer;
-    transition: background-color 160ms var(--bp-ease), border-color 160ms var(--bp-ease);
   }
   @media (min-width: 720px) {
     .bp-opt {
@@ -226,8 +225,13 @@
       gap: 2px;
     }
   }
-  .bp-opt:hover {
-    background: var(--bp-raised);
+  /* Only a hovering pointer eases in, and only while it hovers: a choice made with a number key,
+     or a tap (which leaves a touch screen "hovering"), changes at once. */
+  @media (hover: hover) and (pointer: fine) {
+    .bp-opt:hover {
+      background: var(--bp-raised);
+      transition: background-color 160ms var(--bp-ease), border-color 160ms var(--bp-ease);
+    }
   }
   .bp-radio {
     position: absolute;
@@ -285,18 +289,20 @@
     background: var(--bp-paper);
     color: var(--bp-ink);
     cursor: pointer;
-    transition: background-color 160ms var(--bp-ease);
-  }
-  .bp-btn:hover:not(:disabled) {
-    background: var(--bp-raised);
   }
   .bp-primary {
     background: var(--bp-ink);
     border-color: var(--bp-ink);
     color: var(--bp-paper);
   }
-  .bp-primary:hover:not(:disabled) {
-    background: var(--bp-muted);
+  @media (hover: hover) and (pointer: fine) {
+    .bp-btn:hover:not(:disabled) {
+      background: var(--bp-raised);
+      transition: background-color 160ms var(--bp-ease);
+    }
+    .bp-primary:hover:not(:disabled) {
+      background: var(--bp-muted);
+    }
   }
   .bp-btn:disabled {
     cursor: not-allowed;

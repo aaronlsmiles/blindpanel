@@ -187,3 +187,37 @@ test("the scale keys keep their numbers when a host resets lists in its own lowe
   await expect(keys.first()).toBeVisible();
   for (const k of await keys.all()) expect(await k.evaluate((e) => getComputedStyle(e).listStyleType)).toBe("decimal");
 });
+
+test("a number key selects at once, and only a hovering pointer gets a hover fill", async ({ page }, info) => {
+  await page.goto(BASE);
+  await page.getByRole("button", { name: "Start" }).click();
+  await expect(page.getByRole("heading", { name: /^Still 1 of/ })).toBeVisible();
+  const first = page.locator(".bp-opt").first();
+  const rest = await first.evaluate((o) => getComputedStyle(o).backgroundColor);
+  // touch: a tap leaves the pointer "hovering", so every :hover rule must sit under (hover: hover)
+  const ungated = await page.evaluate(() => {
+    const out: string[] = [];
+    const walk = (rules: CSSRuleList, gated: boolean) => {
+      for (const r of rules) {
+        if (r instanceof CSSMediaRule) { walk(r.cssRules, gated || /\(hover:\s*hover\)/.test(r.conditionText)); continue; }
+        if (r instanceof CSSStyleRule && r.selectorText.includes(":hover") && !gated) out.push(r.selectorText);
+        if ("cssRules" in r) walk((r as CSSGroupingRule).cssRules, gated);
+      }
+    };
+    for (const s of document.styleSheets) walk(s.cssRules, false);
+    return out;
+  });
+  expect(ungated).toEqual([]);
+  if (info.project.name.startsWith("390")) return;
+  await page.mouse.move(0, 0);
+  // the most frequent action in a session, and a keyboard one: the selection must not fade in
+  await page.keyboard.press("4");
+  const picked = page.locator(".bp-opt:has(.bp-radio:checked)");
+  await expect(picked).toHaveCount(1);
+  expect(await picked.evaluate((o) => o.getAnimations().map((a) => (a as CSSTransition).transitionProperty))).toEqual([]);
+  await page.keyboard.press("2");   // and the one it leaves snaps back too
+  expect(await page.evaluate(() => [...document.querySelectorAll(".bp-opt")].flatMap((o) => o.getAnimations()).length)).toBe(0);
+  // a mouse still gets its hover
+  await first.hover();
+  await expect.poll(() => first.evaluate((o) => getComputedStyle(o).backgroundColor)).not.toBe(rest);
+});
