@@ -43,6 +43,13 @@ Card: P10, folded into P01's plan on 28 Oct · Started: 2026-10-28 · Public slu
 - **Left for Phase 4:** the `/rate` mount and StillDrawn reveal in the explorer, `api/` wrappers, applying `sql/schema.sql` to the live project, the vendored tarball, the React wrapper, `db check`.
 - **Fixed after review:** tied raters now sit in rows under the scale line. A class collision that made the intro 594 px wide at 390 was fixed, and the e2e suite now fails on any horizontal overflow. A fresh clone at `ec1a0e1` passes `npm run setup -- --ci` again.
 
+## Decisions (Aaron, 29 Oct 2026)
+
+- The explorer consumes a vendored tarball (with a lock file), not a git dependency.
+- The React wrapper lives in the explorer for v0.1.
+- The 34 StillDrawn objects on R2 stay.
+- Phase 4 starts in a fresh session.
+
 ## Links: demo — · film — · repo — (local only)
 
 ## Next
