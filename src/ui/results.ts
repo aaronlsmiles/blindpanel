@@ -34,6 +34,7 @@ export interface ResultsController {
 }
 
 const f2 = (v: number | null | undefined) => (finite(v) ? (v < 0 ? "−" : "") + Math.abs(v).toFixed(2) : "n/a");
+const count = (n: number) => new Intl.NumberFormat("en").format(n);   // "1,284": the kit's copy is English
 // a number cell wraps only between these pieces, so narrow hosts and wide fonts still fit
 const nb = (t: string) => h("span", { class: "bp-nb" }, t);
 
@@ -297,7 +298,7 @@ export function mountResults(el: HTMLElement, o: ResultsOptions): ResultsControl
         }
         box.replaceChildren(
           h("h3", {}, "Other visitors"),
-          h("p", {}, `${t.n_sessions} ${t.n_sessions === 1 ? "visitor has" : "visitors have"} added their ratings so far.`),
+          h("p", {}, `${count(t.n_sessions)} ${t.n_sessions === 1 ? "visitor has" : "visitors have"} added their ratings so far.`),
           ...(lines.length
             ? lines.map((l) => h("p", {}, l))
             : [h("p", {}, `Clips appear once ${study.modes.public.min_crowd_n} visitors have rated them.`)]),

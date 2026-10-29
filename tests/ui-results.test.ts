@@ -151,6 +151,12 @@ test("after this visitor's own opt-in the tally is read fresh, once; a failed op
   expect(calls).toEqual([{ fresh: false }]);
 });
 
+test("crowd counts read with a thousands separator", async () => {
+  const submission = await sub(study, () => 2);
+  mount({ study, reveal, submission, loadTally: async () => ({ study: "synthetic", n_sessions: 1284, items: {} }) });
+  await vi.waitFor(() => expect(text()).toContain("1,284 visitors have added their ratings so far."));
+});
+
 test("tied raters sit side by side in rows of three, never stacked upward", async () => {
   const submission = await sub(sd.study, () => 4);
   mount({ ...sd, submission });

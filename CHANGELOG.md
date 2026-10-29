@@ -17,4 +17,5 @@
 - Fix: each question's legend sat on its fieldset's top rule, with the rule running on after it; it now sits under the rule, as in the intro.
 - Fix: the intro's scale keys relied on the browser's list numbers, so a host's list reset (even in a lower layer) dropped the 1–5 and, in Safari, the list semantics; `.bp-key` now sets `list-style: decimal` itself, and the results' caveats `list-style: disc`.
 - The StillDrawn example's title is now "StillDrawn's human check" (it repeated the host page's own heading, "Rate it yourself"). Not part of the instrument lock.
+- Fix: the crowd count printed "1284 visitors"; counts now group thousands ("1,284").
 - Docs: hosts must put global resets in a cascade layer declared before `blindpanel`; an unlayered `button { color: inherit }` made the kit's primary buttons unreadable in the first host (docs/deploy.md).
