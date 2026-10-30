@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 (unreleased)
+## 0.1.0 (2026-10-30)
 
 - Study config (`study.yaml`) with a generated JSON Schema, seeded opaque codes and a wording lock.
 - Visitor order: SHA-256 → xoshiro128** → Fisher–Yates, with a Python reference implementation.

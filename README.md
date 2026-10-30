@@ -6,7 +6,7 @@ Blinded human rating of generated video, as a kit. You write one `study.yaml`, a
 - an export that analysis scripts can read
 - the agreement maths that shows a rater where they land against a reference panel and against automatic metrics
 
-MIT licence. Version 0.1.0, not yet released. Live demo (in progress): `stilldrawn.studionephele.com/rate`. There you rate clips from the [StillDrawn](https://doi.org/10.5281/zenodo.23072784) benchmark and see how your answers compare with its six raters'.
+MIT licence. Version 0.1.0. Live demo: `stilldrawn.studionephele.com/rate`. There you rate clips from the [StillDrawn](https://doi.org/10.5281/zenodo.23072784) benchmark and see how your answers compare with its six raters'.
 
 ```bash
 git clone <this repo> blindpanel && cd blindpanel
