@@ -80,6 +80,22 @@ items:
 
 Every item gets a seeded opaque code (`c` or `p` plus five characters). The page, `study.json`, local media file names and remote media URLs (by default) use only the codes. For remote media, upload each file under `<code>.<ext>`. To find the codes, build the study: `study.json` lists every code with its URL.
 
+### Display copies of stills
+
+Large stills load slowly. A panel can list smaller copies for the page to show:
+
+```yaml
+    - id: cu-line-3
+      sha256: …                    # the original: what the reference panel rated
+      display:
+        - { width: 640, sha256: … }    # remote default: <code>-w640.webp
+        - { width: 1344, sha256: … }   # the still's own width, as WebP
+```
+
+The page offers them as a `srcset` (narrowest first) and lets the browser pick one for the screen. The original stays the `src`, so a browser that can't use the set still shows it. Local media need a `file` for each copy. `verify --media` fetches and hash-checks every copy, like any other media.
+
+If the reference panel rated the originals, say on your page that visitors see copies. StillDrawn's example does: its copies are lossy WebP.
+
 ## Reference panel
 
 ```yaml

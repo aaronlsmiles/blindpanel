@@ -1,5 +1,6 @@
 {
- "note": "Source files in the StillDrawn release for each item id; build the study to get each item's opaque object name.",
+ "note": "Source files in the StillDrawn release for each item id; build the study to get each item's opaque object name. Display copies are paths in this folder (prepare.mjs writes them).",
+ "encoder": "cwebp 1.6.0, libsharpyuv: 0.4.2; -quiet -q 92 -m 6",
  "panels": {
   "cu-tone-2": "dataset/panels/cu-tone-2.png",
   "act-line-1": "dataset/panels/act-line-1.png",
@@ -15,6 +16,78 @@
   "act-line-2": "dataset/panels/act-line-2.png",
   "chain-est-cosmic-1": "dataset/panels/chain-est-cosmic-1.png",
   "act-black-1": "dataset/panels/act-black-1.png"
+ },
+ "display": {
+  "cu-tone-2": {
+   "640": ".display/cu-tone-2-w640.webp",
+   "960": ".display/cu-tone-2-w960.webp",
+   "1344": ".display/cu-tone-2-w1344.webp"
+  },
+  "act-line-1": {
+   "640": ".display/act-line-1-w640.webp",
+   "960": ".display/act-line-1-w960.webp",
+   "1344": ".display/act-line-1-w1344.webp"
+  },
+  "cip-act-tank-1": {
+   "640": ".display/cip-act-tank-1-w640.webp",
+   "960": ".display/cip-act-tank-1-w960.webp",
+   "1024": ".display/cip-act-tank-1-w1024.webp"
+  },
+  "cu-tone-3": {
+   "640": ".display/cu-tone-3-w640.webp",
+   "960": ".display/cu-tone-3-w960.webp",
+   "1344": ".display/cu-tone-3-w1344.webp"
+  },
+  "cu-line-1": {
+   "640": ".display/cu-line-1-w640.webp",
+   "960": ".display/cu-line-1-w960.webp",
+   "1344": ".display/cu-line-1-w1344.webp"
+  },
+  "est-line-1": {
+   "640": ".display/est-line-1-w640.webp",
+   "960": ".display/est-line-1-w960.webp",
+   "1344": ".display/est-line-1-w1344.webp"
+  },
+  "est-black-1": {
+   "640": ".display/est-black-1-w640.webp",
+   "960": ".display/est-black-1-w960.webp",
+   "1344": ".display/est-black-1-w1344.webp"
+  },
+  "est-line-2": {
+   "640": ".display/est-line-2-w640.webp",
+   "960": ".display/est-line-2-w960.webp",
+   "1344": ".display/est-line-2-w1344.webp"
+  },
+  "act-black-2": {
+   "640": ".display/act-black-2-w640.webp",
+   "960": ".display/act-black-2-w960.webp",
+   "1344": ".display/act-black-2-w1344.webp"
+  },
+  "cu-line-3": {
+   "640": ".display/cu-line-3-w640.webp",
+   "960": ".display/cu-line-3-w960.webp",
+   "1344": ".display/cu-line-3-w1344.webp"
+  },
+  "cu-black-3": {
+   "640": ".display/cu-black-3-w640.webp",
+   "960": ".display/cu-black-3-w960.webp",
+   "1344": ".display/cu-black-3-w1344.webp"
+  },
+  "act-line-2": {
+   "640": ".display/act-line-2-w640.webp",
+   "960": ".display/act-line-2-w960.webp",
+   "1344": ".display/act-line-2-w1344.webp"
+  },
+  "chain-est-cosmic-1": {
+   "640": ".display/chain-est-cosmic-1-w640.webp",
+   "960": ".display/chain-est-cosmic-1-w960.webp",
+   "1344": ".display/chain-est-cosmic-1-w1344.webp"
+  },
+  "act-black-1": {
+   "640": ".display/act-black-1-w640.webp",
+   "960": ".display/act-black-1-w960.webp",
+   "1344": ".display/act-black-1-w1344.webp"
+  }
  },
  "clips": {
   "cu-line-3_campush_h3": "runs/h3-fal/cu-line-3_campush_h3.mp4",

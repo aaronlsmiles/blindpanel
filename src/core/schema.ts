@@ -9,6 +9,14 @@ const Wording = z
 const Id = z.string().regex(/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/, "letters, digits, '.', '_' or '-'");
 const Hex64 = z.string().regex(/^[0-9a-f]{64}$/, "64 lower-case hex characters");
 
+const Display = z.strictObject({
+  /** the copy's width in pixels (the srcset's w descriptor) */
+  width: z.int().min(1).max(16384),
+  /** path under media.base; defaults to <code>-w<width>.webp for remote media */
+  file: z.string().max(256).optional(),
+  sha256: Hex64.optional(),
+});
+
 const Panel = z.strictObject({
   id: Id,
   /** the key this panel has in the reference ratings files */
@@ -16,6 +24,8 @@ const Panel = z.strictObject({
   /** path under media.base; defaults to <code>.png for remote media */
   file: z.string().max(256).optional(),
   sha256: Hex64.optional(),
+  /** smaller copies for the page to show (srcset); the file above stays the fallback */
+  display: z.array(Display).min(1).optional(),
 });
 
 const Clip = z.strictObject({
@@ -132,6 +142,10 @@ export const StudyConfig = z
     const panels = c.items.panels.map((p) => p.id);
     const pd = dup(panels);
     if (pd) err(["items", "panels"], `duplicate panel id ${pd}`);
+    c.items.panels.forEach((p, i) => {
+      const dw = dup((p.display ?? []).map((d) => String(d.width)));
+      if (dw) err(["items", "panels", i, "display"], `two display copies ${dw} px wide`);
+    });
     const cd = dup(c.items.clips.map((x) => x.id));
     if (cd) err(["items", "clips"], `duplicate clip id ${cd}`);
     c.items.clips.forEach((x, i) => {
@@ -141,6 +155,9 @@ export const StudyConfig = z
       err(["parts", "clips", "session_size"], "session_size is larger than the number of clips");
     if (!isRemote(c.media.base)) {
       c.items.panels.forEach((p, i) => p.file || err(["items", "panels", i, "file"], "local media need a file"));
+      c.items.panels.forEach((p, i) =>
+        p.display?.forEach((d, k) => d.file || err(["items", "panels", i, "display", k, "file"], "local media need a file")),
+      );
       c.items.clips.forEach((p, i) => p.file || err(["items", "clips", i, "file"], "local media need a file"));
     }
   });

@@ -9,11 +9,17 @@ export interface Study {
   scales: Record<string, Scale>;
   questions: Question[];
   /** reference stills: shown beside clips, and rated in the baseline part when there is one */
-  panels: { code: string; image: string }[];
+  panels: { code: string; image: string; display?: DisplayCopy[] }[];
   parts: { baseline: BaselinePart | null; clips: ClipsPart };
   modes: { public: { submit: boolean; tally: boolean; min_crowd_n: number } };
   endpoints: { submit: string; tally: string; reveal: string };
   privacy: string;
+}
+
+/** a smaller copy of a still, narrowest first; the page offers them as a srcset */
+export interface DisplayCopy {
+  url: string;
+  width: number;
 }
 
 export interface Scale {

@@ -54,6 +54,10 @@ test("scripted session: where a consensus rater lands", async ({ page }, info) =
   // before the reveal: no model name anywhere in the page or in any request so far
   expect(await page.content()).not.toMatch(/Gen-4|Turbo|Wan 2|LTX|MiniMax|Runway|Lightricks|\bH3\b/);
   expect(requests.filter((u) => /reveal\.json|gen4|wan22|ltx23|h3-fal|_campush_|_idle_|_burst_/.test(u))).toEqual([]);
+  // stills arrive as their WebP display copies; the PNGs the raters saw are never fetched
+  const stills = requests.filter((u) => u.startsWith("https://media.studionephele.com/") && !u.endsWith(".mp4"));
+  expect(stills.length).toBeGreaterThan(0);
+  expect(stills.filter((u) => !/\/p[0-9a-z]{5}-w\d+\.webp$/.test(u))).toEqual([]);
 
   await page.getByRole("button", { name: "See where you land" }).click();
   await expect(page.getByRole("heading", { name: "Where you land" })).toBeVisible();

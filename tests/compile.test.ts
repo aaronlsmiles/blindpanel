@@ -82,4 +82,39 @@ describe("compile", () => {
     delete c.items.clips[0].file;
     expect(StudyConfig.safeParse(c).success).toBe(false);
   });
+
+  test("display copies default to <code>-w<width>.webp, narrowest first, each checked with its hash", async () => {
+    const c = raw();
+    c.media = { base: "https://media.example.org/s/", origins: ["https://media.example.org"] };
+    for (const i of [...c.items.panels, ...c.items.clips]) delete i.file;
+    const h = (n: number) => String(n).repeat(64);
+    c.items.panels[0].display = [{ width: 1344, sha256: h(1) }, { width: 640, sha256: h(2) }];
+    const { study, checks } = await compile(StudyConfig.parse(c), { readText: read, listDir: list });
+    const [a, b] = study.panels;
+    const at = (w: number) => `https://media.example.org/s/${a.code}-w${w}.webp`;
+    expect(a.display).toEqual([{ url: at(640), width: 640 }, { url: at(1344), width: 1344 }]);
+    expect(a.image).toBe(`https://media.example.org/s/${a.code}.png`); // the original stays the fallback
+    expect(b.display).toBeUndefined();
+    expect(checks).toContainEqual({ url: at(640), sha256: h(2) });
+    expect(checks).toContainEqual({ url: at(1344), sha256: h(1) });
+  });
+
+  test("local display copies are copied under the panel's code", async () => {
+    const c = raw();
+    c.items.panels[0].display = [{ width: 640, file: "panel-a-640.webp" }];
+    const { study, media } = await compile(StudyConfig.parse(c), { readText: read, listDir: list });
+    const code = study.panels[0].code;
+    expect(study.panels[0].display).toEqual([{ url: `media/${code}-w640.webp`, width: 640 }]);
+    expect(media).toContainEqual({ from: "media/panel-a-640.webp", to: `media/${code}-w640.webp` });
+  });
+
+  test.each([
+    ["a local copy without a file", (c: any) => (c.items.panels[0].display = [{ width: 640 }])],
+    ["two copies of one width", (c: any) => (c.items.panels[0].display = [{ width: 640, file: "a.webp" }, { width: 640, file: "b.webp" }])],
+    ["a width that isn't a whole number of pixels", (c: any) => (c.items.panels[0].display = [{ width: 64.5, file: "a.webp" }])],
+  ])("display copies: rejects %s", (_name, mutate) => {
+    const c = raw();
+    mutate(c);
+    expect(StudyConfig.safeParse(c).success).toBe(false);
+  });
 });

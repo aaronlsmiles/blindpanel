@@ -53,13 +53,13 @@ export async function compile(c: StudyConfig, io: CompileIO): Promise<Compiled> 
   const remote = isRemote(c.media.base);
   const media: Compiled["media"] = [];
   const checks: Compiled["checks"] = [];
-  const place = (code: string, file: string | undefined, fallback: string, sha256?: string) => {
+  const place = (name: string, file: string | undefined, fallback: string, sha256?: string) => {
     if (remote) {
-      const url = join(c.media.base, file ?? `${code}${fallback}`);
+      const url = join(c.media.base, file ?? `${name}${fallback}`);
       checks.push({ url, sha256 });
       return url;
     }
-    const to = `media/${code}${ext(file, fallback)}`;
+    const to = `media/${name}${ext(file, fallback)}`;
     const from = join(c.media.base, file!);
     media.push({ from, to });
     checks.push({ url: to, local: from, sha256 });
@@ -88,7 +88,15 @@ export async function compile(c: StudyConfig, io: CompileIO): Promise<Compiled> 
       })),
     },
   };
-  const panels = c.items.panels.map((p) => ({ code: panelCode[p.id], image: place(panelCode[p.id], p.file, ".png", p.sha256) }));
+  const panels = c.items.panels.map((p) => {
+    const code = panelCode[p.id];
+    const image = place(code, p.file, ".png", p.sha256);
+    if (!p.display) return { code, image };
+    const display = [...p.display]
+      .sort((a, b) => a.width - b.width)
+      .map((d) => ({ url: place(`${code}-w${d.width}`, d.file, ".webp", d.sha256), width: d.width }));
+    return { code, image, display };
+  });
   const text_sha256 = await textHash(instrumentText({ scales, questions, parts }));
 
   const study: Study = {

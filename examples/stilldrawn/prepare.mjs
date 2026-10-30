@@ -6,6 +6,7 @@
 // The bundle carries the frozen A6 wording, read verbatim from the release's
 // analysis/human_check/build_harness.py. The six raters' files are copied from
 // the release unchanged. Everything written here is CC BY 4.0 data (see ATTRIBUTION.md).
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { copyFileSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -56,9 +57,23 @@ const EXPLORER = "https://stilldrawn.studionephele.com/explore";
 const cellToCode = Object.fromEntries(Object.entries(mapping).map(([c, cell]) => [cell, c]));
 const nameToPanel = Object.fromEntries(Object.entries(bmap).map(([p, name]) => [name, p]));
 
+const DISPLAY_WIDTHS = [640, 960];
+const DISPLAY_ARGS = ["-quiet", "-q", "92", "-m", "6"];
+const DISPLAY_DIR = join(HERE, ".display");
+mkdirSync(DISPLAY_DIR, { recursive: true });
+const pngWidth = (p) => readFileSync(p).readUInt32BE(16); // IHDR
+const display = (id) => {
+  const src = join(a.release, "dataset/panels", `${id}.png`);
+  const own = pngWidth(src);
+  return [...DISPLAY_WIDTHS.filter((w) => w < own), own].map((width) => {
+    const out = join(DISPLAY_DIR, `${id}-w${width}.webp`);
+    execFileSync("cwebp", [...DISPLAY_ARGS, ...(width < own ? ["-resize", String(width), "0"] : []), src, "-o", out]);
+    return { width, sha256: sha(out) };
+  });
+};
 const panels = Object.entries(bmap)
   .sort()
-  .map(([ref, id]) => ({ id, ref, sha256: sha(join(a.release, "dataset/panels", `${id}.png`)) }));
+  .map(([ref, id]) => ({ id, ref, sha256: sha(join(a.release, "dataset/panels", `${id}.png`)), display: display(id) }));
 const clips = bundle.items.map((it) => {
   const e = ENGINES[it.engine];
   const file = `runs/${e.dir}/${it.cell}.mp4`;
@@ -161,8 +176,10 @@ writeFileSync(
   join(HERE, "media-sources.json"),
   JSON.stringify(
     {
-      note: "Source files in the StillDrawn release for each item id; build the study to get each item's opaque object name.",
+      note: "Source files in the StillDrawn release for each item id; build the study to get each item's opaque object name. Display copies are paths in this folder (prepare.mjs writes them).",
+      encoder: `cwebp ${execFileSync("cwebp", ["-version"]).toString().trim().replace(/\s*\n\s*/g, ", ")}; ${DISPLAY_ARGS.join(" ")}`,
       panels: Object.fromEntries(panels.map((p) => [p.id, `dataset/panels/${p.id}.png`])),
+      display: Object.fromEntries(panels.map((p) => [p.id, Object.fromEntries(p.display.map((d) => [d.width, `.display/${p.id}-w${d.width}.webp`]))])),
       clips: Object.fromEntries(clips.map((c) => [c.id, `runs/${ENGINES[bundle.items.find((i) => i.cell === c.id).engine].dir}/${c.id}.mp4`])),
     },
     null,

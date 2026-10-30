@@ -88,7 +88,14 @@ export function mountSession(el: HTMLElement, study: Study, opts: SessionOptions
 
   const qs = (part: Question["part"]) => study.questions.filter((q) => q.part === part);
   const scaleOf = (q: Question) => study.scales[q.scale];
-  const panelImage = new Map(study.panels.map((p) => [p.code, p.image]));
+  const panelOf = new Map(study.panels.map((p) => [p.code, p]));
+  /** a still, with its display copies as a srcset when the study lists any; srcset and sizes are set
+   *  before src so the browser never starts on the original. `sizes` follows the layout in style.css */
+  const still = (code: string, alt: string, sizes: string) => {
+    const p = panelOf.get(code)!;
+    const set = p.display?.map((d) => `${d.url} ${d.width}w`).join(", ");
+    return h("img", { srcset: set, sizes: set ? sizes : null, src: p.image, alt, decoding: "async" });
+  };
   const clipItem = new Map(study.parts.clips.items.map((c) => [c.code, c]));
 
   const root = h("div", { class: "bp", "data-bp": "session" });
@@ -236,7 +243,7 @@ export function mountSession(el: HTMLElement, study: Study, opts: SessionOptions
     if (s.kind === "panel") {
       put(screen, 
         heading(`Still ${s.n} of ${s.of}`),
-        h("figure", { class: "bp-still" }, h("img", { src: panelImage.get(s.code)!, alt: "The still image to rate", decoding: "async" })),
+        h("figure", { class: "bp-still" }, still(s.code, "The still image to rate", "(min-width: 720px) 44rem, 100vw")),
       );
     } else {
       const item = clipItem.get(s.code)!;
@@ -257,7 +264,7 @@ export function mountSession(el: HTMLElement, study: Study, opts: SessionOptions
         h(
           "div",
           { class: "bp-media" },
-          h("figure", {}, h("img", { src: panelImage.get(item.reference)!, alt: "The original still image", decoding: "async" }), h("figcaption", {}, "Original image")),
+          h("figure", {}, still(item.reference, "The original still image", "(min-width: 720px) 50vw, 100vw"), h("figcaption", {}, "Original image")),
           h("figure", {}, video, h("figcaption", {}, study.parts.clips.video.loop ? "Clip (loops)" : "Clip")),
         ),
         h("p", { class: "bp-watch" }, rich(study.parts.clips.watch_note)),

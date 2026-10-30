@@ -202,6 +202,40 @@ describe("mountSession", () => {
     expect(await validateSubmission(study, JSON.parse(JSON.stringify(submission)))).toMatchObject({ ok: true });
   });
 
+  test("stills offer their display copies as a srcset; the original stays the src", async () => {
+    const copies = (code: string) => [{ url: `m/${code}-w640.webp`, width: 640 }, { url: `m/${code}-w1344.webp`, width: 1344 }];
+    const run = async (s: Study) => {
+      const el = document.createElement("div");
+      document.body.append(el);
+      const c = track(mountSession(el, s, { session: SESSION, storage: null, reducedMotion: false }));
+      await c.ready;
+      btn("start").click();
+      const seen: [string, HTMLImageElement][] = [];
+      while (c.getState().kind !== "end") {
+        for (const img of $$("img") as HTMLImageElement[]) seen.push([c.getState().kind, img.cloneNode() as HTMLImageElement]);
+        answerScreen();
+        btn("next").click();
+      }
+      c.destroy();
+      el.remove();
+      return seen;
+    };
+    const withCopies: Study = { ...study, panels: study.panels.map((p) => ({ ...p, display: copies(p.code) })) };
+    const seen = await run(withCopies);
+    expect(seen.map(([k]) => k)).toEqual(expect.arrayContaining(["panel", "clip"]));
+    for (const [where, img] of seen) {
+      const p = withCopies.panels.find((x) => img.getAttribute("src") === x.image);
+      expect(p, where).toBeTruthy();
+      expect(img.getAttribute("srcset"), where).toBe(`m/${p!.code}-w640.webp 640w, m/${p!.code}-w1344.webp 1344w`);
+      // the baseline still is one column (max 44rem); beside a clip it is half the media row from 720 px
+      expect(img.getAttribute("sizes"), where).toBe(where === "panel" ? "(min-width: 720px) 44rem, 100vw" : "(min-width: 720px) 50vw, 100vw");
+    }
+    for (const [where, img] of await run(study)) {
+      expect(img.hasAttribute("srcset"), where).toBe(false);
+      expect(img.hasAttribute("sizes"), where).toBe(false);
+    }
+  });
+
   test("the page never names a model before completion", async () => {
     const c = await mount();
     btn("start").click();
