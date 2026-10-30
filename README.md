@@ -17,7 +17,13 @@ npm run setup            # install, build, verify both examples, then serve one 
 
 Can a blinded rating study be something you clone, not something you rebuild?
 
-StillDrawn's human check was a one-off. Six raters scored 20 generated clips on two questions, register and sameness. The clips came from five video models, and the raters never learned which model made which. The page that ran it was hand-made. It had a seeded order per rater, the frozen wording checked byte for byte before every deploy, a grep for model names over everything that shipped, and a store that refused edits. All of it mattered, and none of it was reusable.
+StillDrawn's human check was a one-off. Six raters scored 20 generated clips on two questions, register and sameness. The clips came from five video models, and the raters never learned which model made which. The page that ran it was hand-made, with:
+- a seeded order for each rater
+- the frozen wording, checked byte for byte before every deploy
+- a search for model names over everything that shipped
+- a store that refused edits
+
+All of it mattered, and none of it was reusable.
 
 blindpanel turns those pieces into parts a study declares:
 - the questions and their five labelled points
@@ -25,11 +31,17 @@ blindpanel turns those pieces into parts a study declares:
 - a seed
 - a list of names the page must never show
 
-The kit builds the page, derives each visitor's order from the seed and a random session id, and checks that nothing in the build, its file names, its media URLs or the media servers' response headers names a model. Any change to the wording without a new instrument version fails that check.
+The kit then:
+- builds the page
+- derives each visitor's order from the seed and a random session id
+- checks that no model is named in the build, its file names, its media URLs or the media servers' response headers
+- fails the build if the wording changes without a new instrument version
 
 ## Why it matters
 
-Human judgement is still how generated video gets validated, and the tooling is where studies go wrong quietly:
+Human judgement is still how generated video gets checked. Runway, for example, collected over 16,000 human ratings of 1,450 simulated robot rollouts, and those ratings ranked eight robot policies much as real-world trials did (Pearson 0.95; [Runway Research, February 2026](https://runway.com/research/accelerating-robot-policy-evaluation)).
+
+The tooling is where such studies go wrong quietly:
 - **A leak.** A model's name in a URL unblinds every rater.
 - **Drifting wording.** Wording edited after the pilot makes raters incomparable.
 - **Agreement read as accuracy.** On StillDrawn, the panel's ordinal Krippendorff's α was 0.21 for register and 0.48 for sameness. With agreement that low, a single rater's scores say little, and so do a metric's correlations with them.
