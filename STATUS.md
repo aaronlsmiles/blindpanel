@@ -38,6 +38,7 @@ Card: P10, folded into P01's plan on 28 Oct · Started: 2026-10-28 · Public slu
 | 10 | 2026-10-29 | Aaron's notes on the P10 film (made in the explorer repo): the first 20 s jarring, captions hard to see; narration to come (Hume, Aaron's choice) | The session now plays at real speed: the first clip held 4 s, one still and two clips answered, then Done, with a caption that says it was eight; no loading placeholders between screens. Ink caption band, Geist type, terminal in Geist Mono. Silent cut 46.1 s (16:9) and 43.0 s (9:16); with a placeholder voice about 45–47 s. No kit change | yes | 0 |
 | 11 | 2026-10-30 | The P10 film narrated (the v1 studio narrator, Hume Octave) and uploaded with the P01 film | 44.6–46.8 s (16:9 and 9:16), −14.3 LUFS; on `media.studionephele.com/films/v1/blindpanel/` (both cuts, SRT and WebVTT, poster, loop), verified byte for byte. Phase 6 closed; no kit change | yes | 0 |
 | 12 | 2026-10-30 | Phase 7: display copies of stills (test first: schema, compile, UI, an e2e that fails on the old study with 10 PNG fetches); the StillDrawn example's WebP copies on R2; README through plain-check, with Runway's robot-policy post cited in its own figures (Aaron kept it) | 148 unit, 36 synthetic e2e, 4 StillDrawn e2e; `verify --media` 91 checks; a clean clone at `29dac01` passes `npm run setup -- --ci` under Node 24.22.0. Clearance: tree and history clean, all commits noreply | yes | 0 |
+| 13 | 2026-10-30 | G5 (Aaron's word for each step): repo public; CI and clean-clone green on GitHub's runners; v0.1.0 tagged and released by `release.yml` (tarball + SHA256SUMS); the explorer vendors the release tarball | Release tarball = local pack file for file (only the gzip bytes differ); live at `/rate` on production | yes | 0 |
 
 ## Spend: £0 of £0, inside budget (no paid service; CI runs on GitHub's free tier for public repos)
 
@@ -61,12 +62,10 @@ Closed 30 Oct 2026 (Aaron), with a caveat; the evidence is in the explorer's STA
 - The 34 StillDrawn objects on R2 stay.
 - Phase 4 starts in a fresh session.
 
-## Links: demo — · film: https://media.studionephele.com/films/v1/blindpanel/16x9.mp4 (9x16.mp4, .vtt) · repo — (local only)
+## Links: demo https://stilldrawn.studionephele.com/rate · film https://media.studionephele.com/films/v1/blindpanel/16x9.mp4 (9x16.mp4, .vtt) · repo https://github.com/aaronlsmiles/blindpanel · release https://github.com/aaronlsmiles/blindpanel/releases/tag/v0.1.0
 
 ## Next
 
-- Phase 5 kit rounds done 29 Oct (rounds 7 and 8). Aaron's call: `tabular-nums` scoped and `loadTally({ fresh })` go into v0.1.0 (still untagged until G5). **v0.1.1** holds `blindpanel db check` (the explorer's `tools/supabase/check.sql` is the working version); no date set.
-- Candidates found by the design critique, not changed (they touch the protocol's presentation or the kit's copy): progress restarts at "Clip 1 of 8" after the last still ("Still 6 of 6" in the film's session: the baseline is the distinct panels behind a visitor's clips, so its length varies) (no overall position); "Done: 8 clips rated" leaves out the stills; the results legend has no key for the author's hollow dots; per-question notes repeat on every screen. Aaron kept the clip screen's layout (still left, clip right, as the intro says).
-- **Film (Phase 6): done 30 Oct**, on R2 (link above); the voice is v1, refined later on planner card F6. The card's 45 s stands (exception in the criteria). Candidate from the film: `npm ci` on npm 11 prints `install-scripts` warnings for `fsevents` (an optional dependency); declaring it in the kit's npm config would quiet a fresh setup. Not changed: not broken, and the config key needs checking against npm's docs first.
-- **Approved by Aaron (30 Oct), Phase 7's first job:** display copies for the StillDrawn example's stills (WebP under the same blinded codes); the study config gains a way to list display copies (srcset); the README says visitors see a near-lossless copy while the reference panel rated the PNGs. Test-first, CHANGELOG, re-vendor; inside v0.1.0.
-- G5: push and create the GitHub repo (then CI and clean-clone.yml run on fresh runners).
+- **Done 30 Oct: P10 shipped (folded into P01).** v0.1.0 released (https://github.com/aaronlsmiles/blindpanel/releases/tag/v0.1.0); CI and the clean-clone workflow green on GitHub's runners; live demo at https://stilldrawn.studionephele.com/rate; film on R2. Success criteria 1–4 met (criterion 4: the 45 s card length, an exception recorded above).
+- **v0.1.1 candidates:** `blindpanel db check`; quiet npm 11's `fsevents` install-script warnings; the design critique's copy items (progress restarting at "Clip 1 of 8", "Done" leaving out the stills, a key for the author's hollow dots, notes repeating on every screen).
+- **v0.2:** invited mode (per-rater passwords).
