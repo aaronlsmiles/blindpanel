@@ -36,6 +36,7 @@ Card: P10, folded into P01's plan on 28 Oct · Started: 2026-10-28 · Public slu
 | 8 | 2026-10-29 | `/review-animations` on the first host, test first with a CHANGELOG line | The option and button hovers were not gated to hovering pointers, so a tap left a fill on touch screens; the 160 ms background ease ran on every state change, so a choice made with the 1–5 keys faded in. Hovers now sit under `(hover: hover) and (pointer: fine)` and the ease lives on the hover state; a keyed or tapped choice changes at once. A stylesheet scan replaced a touch-emulation check that couldn't fail (Chromium's emulation never applies `:hover`). 142 unit, 36 e2e, 4 StillDrawn e2e | yes | 0 |
 | 9 | 2026-10-29 | Phase 6: the P10 film (45 s, 16:9 and 9:16), made in the explorer repo (`film/`, `web/e2e/film.spec.ts`): a scripted visitor rates 8 clips on `/rate`, sees where they land, then a real `npm run setup` from a fresh clone at `97326a1` under Node 24.22.0 | Cuts 43.1 s (16:9) and 44.4 s (9:16), silent, captioned, every clip credited with its model while on screen. No kit change: the film found nothing broken in the kit. It did show npm 11's four `install-scripts` warnings for `fsevents@2.3.3` during `npm ci` (real output, kept in the film; a candidate below). Waiting for Aaron's review before the films go to R2 | yes | 0 |
 | 10 | 2026-10-29 | Aaron's notes on the P10 film (made in the explorer repo): the first 20 s jarring, captions hard to see; narration to come (Hume, Aaron's choice) | The session now plays at real speed: the first clip held 4 s, one still and two clips answered, then Done, with a caption that says it was eight; no loading placeholders between screens. Ink caption band, Geist type, terminal in Geist Mono. Silent cut 46.1 s (16:9) and 43.0 s (9:16); with a placeholder voice about 45–47 s. No kit change | yes | 0 |
+| 11 | 2026-10-30 | The P10 film narrated (the v1 studio narrator, Hume Octave) and uploaded with the P01 film | 44.6–46.8 s (16:9 and 9:16), −14.3 LUFS; on `media.studionephele.com/films/v1/blindpanel/` (both cuts, SRT and WebVTT, poster, loop), verified byte for byte. Phase 6 closed; no kit change | yes | 0 |
 
 ## Spend: £0 of £0
 
@@ -55,11 +56,11 @@ Card: P10, folded into P01's plan on 28 Oct · Started: 2026-10-28 · Public slu
 - The 34 StillDrawn objects on R2 stay.
 - Phase 4 starts in a fresh session.
 
-## Links: demo — · film — · repo — (local only)
+## Links: demo — · film: https://media.studionephele.com/films/v1/blindpanel/16x9.mp4 (9x16.mp4, .vtt) · repo — (local only)
 
 ## Next
 
 - Phase 5 kit rounds done 29 Oct (rounds 7 and 8). Aaron's call: `tabular-nums` scoped and `loadTally({ fresh })` go into v0.1.0 (still untagged until G5). **v0.1.1** holds `blindpanel db check` (the explorer's `tools/supabase/check.sql` is the working version); no date set.
 - Candidates found by the design critique, not changed (they touch the protocol's presentation or the kit's copy): progress restarts at "Clip 1 of 8" after the last still ("Still 6 of 6" in the film's session: the baseline is the distinct panels behind a visitor's clips, so its length varies) (no overall position); "Done: 8 clips rated" leaves out the stills; the results legend has no key for the author's hollow dots; per-question notes repeat on every screen. Aaron kept the clip screen's layout (still left, clip right, as the intro says).
-- **Film (Phase 6, 29 Oct):** cut, awaiting Aaron's review; then R2 under `films/` and the link above. The card's 45 s stands (exception in the criteria). Candidate from the film: `npm ci` on npm 11 prints `install-scripts` warnings for `fsevents` (an optional dependency); declaring it in the kit's npm config would quiet a fresh setup. Not changed: not broken, and the config key needs checking against npm's docs first.
+- **Film (Phase 6): done 30 Oct**, on R2 (link above); the voice is v1, refined later on planner card F6. The card's 45 s stands (exception in the criteria). Candidate from the film: `npm ci` on npm 11 prints `install-scripts` warnings for `fsevents` (an optional dependency); declaring it in the kit's npm config would quiet a fresh setup. Not changed: not broken, and the config key needs checking against npm's docs first.
 - G5: push and create the GitHub repo (then CI and clean-clone.yml run on fresh runners).
