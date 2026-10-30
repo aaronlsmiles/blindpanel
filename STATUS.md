@@ -37,8 +37,9 @@ Card: P10, folded into P01's plan on 28 Oct · Started: 2026-10-28 · Public slu
 | 9 | 2026-10-29 | Phase 6: the P10 film (45 s, 16:9 and 9:16), made in the explorer repo (`film/`, `web/e2e/film.spec.ts`): a scripted visitor rates 8 clips on `/rate`, sees where they land, then a real `npm run setup` from a fresh clone at `97326a1` under Node 24.22.0 | Cuts 43.1 s (16:9) and 44.4 s (9:16), silent, captioned, every clip credited with its model while on screen. No kit change: the film found nothing broken in the kit. It did show npm 11's four `install-scripts` warnings for `fsevents@2.3.3` during `npm ci` (real output, kept in the film; a candidate below). Waiting for Aaron's review before the films go to R2 | yes | 0 |
 | 10 | 2026-10-29 | Aaron's notes on the P10 film (made in the explorer repo): the first 20 s jarring, captions hard to see; narration to come (Hume, Aaron's choice) | The session now plays at real speed: the first clip held 4 s, one still and two clips answered, then Done, with a caption that says it was eight; no loading placeholders between screens. Ink caption band, Geist type, terminal in Geist Mono. Silent cut 46.1 s (16:9) and 43.0 s (9:16); with a placeholder voice about 45–47 s. No kit change | yes | 0 |
 | 11 | 2026-10-30 | The P10 film narrated (the v1 studio narrator, Hume Octave) and uploaded with the P01 film | 44.6–46.8 s (16:9 and 9:16), −14.3 LUFS; on `media.studionephele.com/films/v1/blindpanel/` (both cuts, SRT and WebVTT, poster, loop), verified byte for byte. Phase 6 closed; no kit change | yes | 0 |
+| 12 | 2026-10-30 | Phase 7: display copies of stills (test first: schema, compile, UI, an e2e that fails on the old study with 10 PNG fetches); the StillDrawn example's WebP copies on R2; README through plain-check, with Runway's robot-policy post cited in its own figures (Aaron kept it) | 148 unit, 36 synthetic e2e, 4 StillDrawn e2e; `verify --media` 91 checks; a clean clone at `29dac01` passes `npm run setup -- --ci` under Node 24.22.0. Clearance: tree and history clean, all commits noreply | yes | 0 |
 
-## Spend: £0 of £0
+## Spend: £0 of £0, inside budget (no paid service; CI runs on GitHub's free tier for public repos)
 
 ## Phase 3 result (2026-10-28)
 
@@ -48,6 +49,10 @@ Card: P10, folded into P01's plan on 28 Oct · Started: 2026-10-28 · Public slu
   - Sameness: ρ 0.95 against 0.56–0.94 (beats all 6). α 0.49, and 0.56 with the visitor added.
 - **Left for Phase 4:** the `/rate` mount and StillDrawn reveal in the explorer, `api/` wrappers, applying `sql/schema.sql` to the live project, the vendored tarball, the React wrapper, `db check`.
 - **Fixed after review:** tied raters now sit in rows under the scale line. A class collision that made the intro 594 px wide at 390 was fixed, and the e2e suite now fails on any horizontal overflow. A fresh clone at `ec1a0e1` passes `npm run setup -- --ci` again.
+
+## Gate G0 (Runway terms)
+
+Closed 30 Oct 2026 (Aaron), with a caveat; the evidence is in the explorer's STATUS.md. The kit itself ships no Runway output: its StillDrawn example serves the release's CC BY clips from the media host under blinded names.
 
 ## Decisions (Aaron, 29 Oct 2026)
 
