@@ -1,6 +1,8 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { beforeAll, describe, expect, test } from "vitest";
 import { participantOrder } from "../src/core/order.js";
-import { buildSubmission, validateSubmission } from "../src/core/payload.js";
+import { buildSubmission, UI_VERSION, validateSubmission } from "../src/core/payload.js";
 import { flagsFor } from "../src/server/flags.js";
 import type { Study, Submission } from "../src/core/types.js";
 import { loadExample, SESSION } from "./helpers.js";
@@ -121,4 +123,10 @@ describe("validateSubmission with choice scales", () => {
     s.answers.clips[s.order.clips[0]].look = 6;
     expect(await validateSubmission(study, s)).toMatchObject({ ok: false, error: expect.stringContaining("from 1 to 5") });
   });
+});
+
+test("delivery.ui names the package version", () => {
+  const pkg = JSON.parse(readFileSync(join(import.meta.dirname, "../package.json"), "utf8"));
+  expect(UI_VERSION).toBe(`blindpanel@${pkg.version}`);
+  expect(pkg.version).toBe("0.2.0");
 });

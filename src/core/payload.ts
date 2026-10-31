@@ -3,7 +3,7 @@ import { scaleMax } from "./scale.js";
 import type { Study, Submission } from "./types.js";
 
 export const FORMAT = "blindpanel/1";
-export const UI_VERSION = "blindpanel@0.1.0";
+export const UI_VERSION = "blindpanel@0.2.0";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
 export interface SessionState {
