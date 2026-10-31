@@ -2,6 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 const SYN = 5310;
 const SD = 5311;
+const CH = 5312;
 const stilldrawn = !!process.env.BP_STILLDRAWN; // needs the network (media on R2)
 
 const sizes = [
@@ -20,7 +21,7 @@ export default defineConfig({
   projects: sizes.flatMap((s) =>
     schemes.map((colorScheme) => ({
       name: `${s.name}-${colorScheme}`,
-      testMatch: stilldrawn ? /.*\.spec\.ts/ : /synthetic\.spec\.ts/,
+      testMatch: stilldrawn ? /.*\.spec\.ts/ : /(synthetic|choice)\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], viewport: s.viewport, isMobile: "isMobile" in s, hasTouch: "hasTouch" in s, colorScheme },
     })),
   ),
@@ -28,6 +29,11 @@ export default defineConfig({
     {
       command: `node bin/blindpanel.mjs dev examples/synthetic/study.yaml --port ${SYN} --out .blindpanel/e2e/synthetic`,
       url: `http://localhost:${SYN}/`,
+      reuseExistingServer: !process.env.CI,
+    },
+    {
+      command: `node bin/blindpanel.mjs dev examples/choice/study.yaml --port ${CH} --out .blindpanel/e2e/choice`,
+      url: `http://localhost:${CH}/`,
       reuseExistingServer: !process.env.CI,
     },
     ...(stilldrawn
