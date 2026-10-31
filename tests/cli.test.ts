@@ -153,7 +153,10 @@ describe("dev server, export, report", () => {
     expect(v.rater).toBe("V0001");
     expect(v.ratings.map((r: { clip: string }) => r.clip).every((c: string) => /^c0[1-3]$/.test(c))).toBe(true);
     expect(JSON.stringify(v)).not.toContain(session);
-    expect(readFileSync(join(out, "ratings.csv"), "utf8").split("\n")[0]).toBe("visitor,instrument,part,position,item,question,score,flags");
+    const csv = readFileSync(join(out, "ratings.csv"), "utf8").split("\n");
+    expect(csv[0]).toBe("visitor,instrument,part,position,item,question,score,flags,option");
+    // an ordinal answer carries its scale point's label too: look = 4 is "Mostly"
+    expect(csv[1]).toMatch(/^V0001,1,clips,1,c0[1-3],look,4,,Mostly$/);
     expect(report(l, rows)).toMatch(/1 submissions; 1 unflagged/);
     expect(existsSync(join(out, "ratings.csv"))).toBe(true);
   });

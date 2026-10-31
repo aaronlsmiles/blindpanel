@@ -3,7 +3,9 @@ import { join } from "node:path";
 import { fileStore } from "../server/stores/file.js";
 import { supabaseStore } from "../server/stores/supabase.js";
 import type { Row, Store } from "../server/stores/types.js";
-import { krippendorffOrdinal, nanmean, spearmanPairs } from "../stats/index.js";
+import { isChoice } from "../core/scale.js";
+import { plainText } from "../core/text.js";
+import { krippendorffNominal, krippendorffOrdinal, nanmean, spearmanPairs } from "../stats/index.js";
 import type { Loaded } from "./load.js";
 import { UsageError } from "./load.js";
 
@@ -18,6 +20,19 @@ export function openStore(kind: string | undefined, dataDir?: string): Store {
   throw new UsageError(`unknown store: ${kind} (use file or supabase)`);
 }
 
+/** One CSV cell: quoted when it holds a comma, a quote or a line break (option labels can). */
+const csvCell = (v: string | number) => {
+  const s = String(v);
+  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+};
+
+/** The label the visitor saw for answer `v` to `question`, as plain text (bold markers removed). */
+const optionLabel = (l: Loaded, question: string, v: number) => {
+  const q = l.study.questions.find((x) => x.id === question);
+  const label = q ? l.study.scales[q.scale]?.labels[v - 1] : undefined;
+  return label === undefined ? "" : plainText(label);
+};
+
 /**
  * Writes one ratings-V0001.json… per visitor, in the reference shape
  * ({rater, instrument, ratings: [{clip, <question>…}], baseline: [{panel, <question>}]}),
@@ -26,7 +41,7 @@ export function openStore(kind: string | undefined, dataDir?: string): Store {
  */
 export function exportRows(l: Loaded, rows: Row[], out: string) {
   mkdirSync(out, { recursive: true });
-  const csv = ["visitor,instrument,part,position,item,question,score,flags"];
+  const csv = ["visitor,instrument,part,position,item,question,score,flags,option"];
   rows.forEach((r, i) => {
     const visitor = `V${String(i + 1).padStart(4, "0")}`;
     const file = {
@@ -43,7 +58,7 @@ export function exportRows(l: Loaded, rows: Row[], out: string) {
     ] as const) {
       order.forEach((code, pos) => {
         for (const [q, v] of Object.entries(r.answers[part][code] ?? {}))
-          csv.push([visitor, r.instrument, part, pos + 1, refs[code] ?? code, q, v, r.flags.join(" ")].join(","));
+          csv.push([visitor, r.instrument, part, pos + 1, refs[code] ?? code, q, v, r.flags.join(" "), optionLabel(l, q, v)].map(csvCell).join(","));
       });
     }
   });
@@ -64,6 +79,13 @@ export function report(l: Loaded, rows: Row[]): string {
     const crowd = kept.map((r) => codes.map((c) => r.answers.clips[c]?.[q.id] ?? null));
     const crowdMean = codes.map((_, j) => nanmean(crowd.map((r) => r[j])));
     lines.push("", `${q.short ?? q.id}:`);
+    if (isChoice(l.study.scales[q.scale])) {
+      // options have no order: nominal α only (no means, no ρ)
+      const answered = codes.filter((_, j) => crowd.some((r) => r[j] !== null)).length;
+      lines.push(`  crowd α (nominal) ${fmt(krippendorffNominal(crowd))} over ${answered} clips`);
+      if (ref) lines.push(`  panel α (nominal) ${fmt(krippendorffNominal(ref.ratings[q.id]))}`);
+      continue;
+    }
     lines.push(`  crowd α ${fmt(krippendorffOrdinal(crowd))} over ${crowdMean.filter((m) => m !== null).length} clips`);
     if (ref) {
       const panelMean = codes.map((_, j) => nanmean(ref.ratings[q.id].map((r) => r[j])));
