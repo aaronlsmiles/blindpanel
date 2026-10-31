@@ -1,6 +1,7 @@
 import { assignCodes } from "./codes.js";
 import { instrumentText, textHash } from "./lock.js";
 import { isRemote, type StudyConfig } from "./schema.js";
+import { maxFor } from "./scale.js";
 import type { Metric, Question, Reveal, Study } from "./types.js";
 
 export interface CompileIO {
@@ -72,7 +73,7 @@ export async function compile(c: StudyConfig, io: CompileIO): Promise<Compiled> 
   const scales: Study["scales"] = Object.fromEntries(
     Object.entries(c.scales).map(([k, s]) => [
       k,
-      { kind: s.kind, min: 1 as const, max: s.kind === "choice" ? s.labels.length : 5, labels: s.labels },
+      { kind: s.kind, min: 1 as const, max: maxFor(s.kind, s.labels), labels: s.labels },
     ]),
   );
   const parts: Study["parts"] = {
@@ -150,7 +151,7 @@ function loadReference(c: StudyConfig, io: CompileIO): NonNullable<Reveal["refer
   const ratings: Record<string, (number | null)[][]> = {};
   for (const q of c.questions) {
     const s = c.scales[q.scale];
-    const max = s.kind === "choice" ? s.labels.length : 5;
+    const max = maxFor(s.kind, s.labels);
     ratings[q.id] = data.map((d) => {
       if (q.part === "clips") {
         const got = new Map((d.ratings ?? []).map((r) => [r.clip, score(r[q.id], max)]));

@@ -1,7 +1,14 @@
 import { describe, expect, test } from "vitest";
-import { isChoice, keyValue, scaleMax, valueKey } from "../src/core/scale.js";
+import { isChoice, keyValue, maxFor, ORDINAL_MAX, scaleMax, valueKey } from "../src/core/scale.js";
 
 describe("scale helpers", () => {
+  test("ORDINAL_MAX is 5, and maxFor: 5 for an ordinal scale whatever its labels, the option count for a choice scale", () => {
+    expect(ORDINAL_MAX).toBe(5);
+    expect(maxFor("ordinal", ["a", "b", "c", "d", "e"])).toBe(5);
+    expect(maxFor("ordinal", [])).toBe(5);
+    expect(maxFor("choice", ["a", "b", "c"])).toBe(3);
+    expect(maxFor("choice", Array.from({ length: 12 }, (_, i) => String(i)))).toBe(12);
+  });
   test("isChoice: only kind choice; a scale from before 0.2 (no kind) is ordinal", () => {
     expect(isChoice({ kind: "choice" })).toBe(true);
     expect(isChoice({ kind: "ordinal" })).toBe(false);

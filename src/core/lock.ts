@@ -1,4 +1,5 @@
 import { sha256Hex } from "./rng.js";
+import { isChoice } from "./scale.js";
 import type { Study } from "./types.js";
 
 export function canonicalJson(v: unknown): string {
@@ -28,7 +29,7 @@ export function instrumentText(s: Wording) {
       Object.entries(s.scales).map(([id, x]) => [
         id,
         // An ordinal scale hashes exactly as it did before 0.2 (no `kind` key), so locks made then still verify.
-        x.kind === "choice"
+        isChoice(x)
           ? { kind: x.kind, min: x.min, max: x.max, labels: x.labels }
           : { min: x.min, max: x.max, labels: x.labels },
       ]),
