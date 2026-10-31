@@ -118,3 +118,50 @@ describe("compile", () => {
     expect(StudyConfig.safeParse(c).success).toBe(false);
   });
 });
+
+describe("choice scales (schema)", () => {
+  const options = (n: number) => Array.from({ length: n }, (_, i) => `Option ${i + 1}`);
+  const ok = (mutate: (c: any) => void) => {
+    const c = raw();
+    mutate(c);
+    return StudyConfig.safeParse(c);
+  };
+
+  test("kind defaults to ordinal, and the parsed config says so", () => {
+    expect(StudyConfig.parse(raw()).scales.same.kind).toBe("ordinal");
+  });
+  test("an explicit kind: ordinal with five labels is valid", () => {
+    expect(ok((c) => (c.scales.same.kind = "ordinal")).success).toBe(true);
+  });
+  test.each([2, 5, 8, 12])("a choice scale takes %i options", (n) => {
+    const r = ok((c) => (c.scales.same = { kind: "choice", labels: options(n) }));
+    expect(r.success).toBe(true);
+  });
+  test.each([0, 1, 13])("a choice scale does not take %i options", (n) => {
+    expect(ok((c) => (c.scales.same = { kind: "choice", labels: options(n) })).success).toBe(false);
+  });
+  test.each([4, 6])("an ordinal scale still has exactly five labels (%i is refused)", (n) => {
+    const r = ok((c) => (c.scales.same.labels = options(n)));
+    expect(r.success).toBe(false);
+    expect(JSON.stringify(r.error?.issues)).toContain("exactly 5 labels");
+  });
+  test("an unknown kind is refused", () => {
+    expect(ok((c) => (c.scales.same = { kind: "nominal", labels: options(3) })).success).toBe(false);
+  });
+  test("two options with the same text are refused (the export could not tell them apart)", () => {
+    const r = ok((c) => (c.scales.same = { kind: "choice", labels: ["Same", "Other", "same "] }));
+    expect(r.success).toBe(false);
+    expect(JSON.stringify(r.error?.issues)).toContain("two options");
+  });
+  test("a choice question takes no direction: its options are not ordered", () => {
+    const r = ok((c) => {
+      c.scales.same = { kind: "choice", labels: options(3) };
+      c.questions[2].direction = "5 = yes · 1 = no";
+    });
+    expect(r.success).toBe(false);
+    expect(JSON.stringify(r.error?.issues)).toContain("no direction");
+  });
+  test("an ordinal question still takes a direction", () => {
+    expect(ok((c) => (c.questions[2].direction = "5 = yes · 1 = no")).success).toBe(true);
+  });
+});

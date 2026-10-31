@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { hasMarkup } from "./text.js";
+import { hasMarkup, plainText } from "./text.js";
 
 const Wording = z
   .string()
@@ -53,6 +53,15 @@ const Question = z.strictObject({
   scale: Id,
 });
 
+const Scale = z.strictObject({
+  /**
+   * ordinal (the default): exactly 5 labelled points, 1 = low … 5 = high, with ordinal statistics.
+   * choice: 2–12 nominal options, answered 1…n in the order listed; the numbers carry no order.
+   */
+  kind: z.enum(["ordinal", "choice"]).prefault("ordinal"),
+  labels: z.array(Wording).min(2).max(12),
+});
+
 export const StudyConfig = z
   .strictObject({
     $schema: z.string().optional(),
@@ -77,7 +86,7 @@ export const StudyConfig = z
       /** byte-exact media may carry provenance (C2PA); the docs say so */
       embedded_provenance: z.literal("allow").prefault("allow"),
     }),
-    scales: z.record(Id, z.strictObject({ labels: z.array(Wording).length(5) })),
+    scales: z.record(Id, Scale),
     questions: z.array(Question).min(1),
     parts: z.strictObject({
       baseline: z.strictObject({ intro: z.array(Wording).prefault([]) }).optional(),
@@ -131,12 +140,22 @@ export const StudyConfig = z
     const err = (path: (string | number)[], message: string) => ctx.addIssue({ code: "custom", path, message });
     c.questions.forEach((q, i) => {
       if (!(q.scale in c.scales)) err(["questions", i, "scale"], `no scale named ${q.scale}`);
+      if (q.direction && c.scales[q.scale]?.kind === "choice")
+        err(["questions", i, "direction"], "a choice question has no direction: its options are not ordered");
       if (q.part === "baseline" && !c.parts.baseline) err(["questions", i, "part"], "baseline question but no baseline part");
     });
     if (c.parts.baseline && !c.questions.some((q) => q.part === "baseline"))
       err(["parts", "baseline"], "baseline part without a baseline question");
     if (!c.questions.some((q) => q.part === "clips")) err(["questions"], "no clip question");
     const dup = (xs: string[]) => xs.find((x, i) => xs.indexOf(x) !== i);
+    for (const [id, s] of Object.entries(c.scales)) {
+      if (s.kind === "ordinal" && s.labels.length !== 5)
+        err(["scales", id, "labels"], `an ordinal scale has exactly 5 labels (${s.labels.length} given); use kind: choice for 2–12 options`);
+      if (s.kind === "choice") {
+        const twin = dup(s.labels.map((l) => plainText(l).trim().toLowerCase()));
+        if (twin) err(["scales", id, "labels"], `two options are both "${twin}"`);
+      }
+    }
     const qd = dup(c.questions.map((q) => q.id));
     if (qd) err(["questions"], `duplicate question id ${qd}`);
     const panels = c.items.panels.map((p) => p.id);
