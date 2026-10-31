@@ -1,0 +1,100 @@
+# yaml-language-server: $schema=../../schema/study.schema.json
+# Choice questions: unordered options, answered 1…n. The same three clips and two stills as
+# examples/synthetic (CC0), with no reference panel: a study that only asks "which one?".
+blindpanel: 1
+id: choice-demo
+title: A choice-question test study
+instrument: "1"
+media:
+  base: ./media/
+  origins: []
+blinding:
+  seed: choice-demo-1
+  banned_terms_file: banned-terms.txt
+scales:
+  reacts:
+    kind: choice
+    labels:
+      - Nothing in particular
+      - The light
+      - A sound
+      - Another shape
+      - The edge of the picture
+      - The camera
+      - "Something I can't name"
+      - It did not react
+  acts:
+    kind: choice
+    labels:
+      - Stayed still
+      - Turned
+      - Leaned in, slowly
+      - Pulled back
+      - Looked up
+      - Looked down
+      - Reached out
+      - Jumped
+      - Hid
+      - Shook
+      - Changed shape
+      - Something else
+questions:
+  - id: trigger_still
+    short: What it would react to
+    part: baseline
+    text: If this drawing came alive here, what would it react to?
+    scale: reacts
+  - id: action_still
+    short: What it would do
+    part: baseline
+    text: What would it do?
+    scale: acts
+  - id: trigger
+    short: What it reacted to
+    part: clips
+    text: What did the shape react to?
+    scale: reacts
+  - id: action
+    short: What it did
+    part: clips
+    text: What did it do?
+    scale: acts
+parts:
+  baseline:
+    intro: ["First, the **two stills** on their own. Two questions about each."]
+  clips:
+    intro:
+      - Each screen shows a **still** (left) and a **one-second clip** made from it (right, on loop). Two questions about each.
+      - Pick the one option that fits best. There are no right answers.
+    watch_note: Watch the whole clip before answering.
+    clip_seconds: 1
+    session_size: 2
+    extend: true
+items:
+  panels:
+    - { id: panel-box, ref: p01, file: panel-box.png, sha256: 4a9b59450eacb7ceb0148a02e0e8bbfbc3dec164201c1da513a3feedbc6ee63a }
+    - { id: panel-grid, ref: p02, file: panel-grid.png, sha256: e3b7489be34d801d7ad8aee9cb052dbfb919838e5bf567ac524432be613116fc }
+  clips:
+    - id: box-still_engine-alpha
+      ref: c01
+      reference: panel-box
+      file: box-still.mp4
+      sha256: 32184c15d1f9f363affab4103a98fe2d15dbc9023a42d7e2003b7fdf2356c486
+      label: Engine Alpha
+      meta: { motion: still }
+    - id: box-drift_engine-beta
+      ref: c02
+      reference: panel-box
+      file: box-drift.mp4
+      sha256: 9816dc07dd9174d67ec52316b0237e38297239e84cf77d69fa6d77037a62472d
+      label: Engine Beta
+      meta: { motion: drift }
+    - id: grid-blur_engine-gamma
+      ref: c03
+      reference: panel-grid
+      file: grid-blur.mp4
+      sha256: d8cc54a914430055f42299edd4eb1a1ae4524d7f50fada80e79c6ddf99dec3b0
+      label: Engine Gamma
+      meta: { motion: blur }
+modes:
+  public: { submit: true, tally: true, min_crowd_n: 2 }

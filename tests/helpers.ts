@@ -4,7 +4,7 @@ import { parse } from "yaml";
 import { compile } from "../src/core/compile.js";
 import { StudyConfig } from "../src/core/schema.js";
 
-export async function loadExample(name: "synthetic" | "stilldrawn") {
+export async function loadExample(name: "synthetic" | "stilldrawn" | "choice") {
   const dir = join(import.meta.dirname, "../examples", name);
   const io = {
     readText: (p: string) => readFileSync(join(dir, p), "utf8"),
