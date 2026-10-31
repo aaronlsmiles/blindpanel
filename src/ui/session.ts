@@ -1,5 +1,6 @@
 import { participantOrder, type ParticipantOrder } from "../core/order.js";
 import { buildSubmission } from "../core/payload.js";
+import { isChoice, keyValue, scaleMax, valueKey } from "../core/scale.js";
 import { plainText } from "../core/text.js";
 import type { Question, Study, Submission } from "../core/types.js";
 import { h, put, rich } from "./dom.js";
@@ -88,6 +89,11 @@ export function mountSession(el: HTMLElement, study: Study, opts: SessionOptions
 
   const qs = (part: Question["part"]) => study.questions.filter((q) => q.part === part);
   const scaleOf = (q: Question) => study.scales[q.scale];
+  /** the number keys that answer, as the shortcut line names them: "1–5" for ordinal scales, "1–9 and 0" from ten options up */
+  const numberKeys = () => {
+    const top = Math.max(...study.questions.map((q) => scaleMax(scaleOf(q))));
+    return top <= 9 ? `1–${top}` : "1–9 and 0";
+  };
   const panelOf = new Map(study.panels.map((p) => [p.code, p]));
   /** a still, with its display copies as a srcset when the study lists any; srcset and sizes are set
    *  before src so the browser never starts on the original. `sizes` follows the layout in style.css */
@@ -143,23 +149,27 @@ export function mountSession(el: HTMLElement, study: Study, opts: SessionOptions
   function question(q: Question, part: "baseline" | "clips", code: string, num: number | null, onChange: () => void) {
     const name = `bp-${code}-${q.id}`;
     const current = state.answers[part][code]?.[q.id];
+    const choice = isChoice(scaleOf(q));
+    const legendId = `${name}-legend`;
     const fs = h(
       "fieldset",
-      { class: "bp-q", "data-q": q.id },
-      h("legend", { class: "bp-legend" }, num ? h("span", { class: "bp-qnum" }, `${num}. `) : null, "“", rich(q.text), "”"),
-      q.direction ? h("p", { class: "bp-dir" }, rich(q.direction)) : null,
+      { class: "bp-q", "data-q": q.id, role: choice ? "radiogroup" : null, "aria-labelledby": choice ? legendId : null },
+      h("legend", { class: "bp-legend", id: choice ? legendId : null }, num ? h("span", { class: "bp-qnum" }, `${num}. `) : null, "“", rich(q.text), "”"),
+      !choice && q.direction ? h("p", { class: "bp-dir" }, rich(q.direction)) : null,
       ...q.notes.map((n) => h("p", { class: "bp-note" }, rich(n))),
     );
-    const scale = h("div", { class: "bp-scale" });
+    const scale = h("div", { class: choice ? "bp-scale bp-scale-choice" : "bp-scale" });
     scaleOf(q).labels.forEach((label, i) => {
       const v = i + 1;
-      const input = h("input", { type: "radio", name, value: v, class: "bp-radio", checked: current === v, "aria-label": `${v}, ${plainText(label)}` });
+      // an ordinal point is announced by its number; a choice option by the key that selects it, when it has one
+      const hint = choice ? valueKey(v) : String(v);
+      const input = h("input", { type: "radio", name, value: v, class: "bp-radio", checked: current === v, "aria-label": hint ? `${hint}, ${plainText(label)}` : plainText(label) });
       input.addEventListener("change", () => {
         (state.answers[part][code] ??= {})[q.id] = v;
         onChange();
       });
       scale.append(
-        h("label", { class: "bp-opt" }, input, h("span", { class: "bp-num" }, String(v), h("span", { class: "bp-sr" }, ", ")), h("span", { class: "bp-lab" }, rich(label))),
+        h("label", { class: "bp-opt" }, input, h("span", { class: "bp-num" }, hint ?? "", hint ? h("span", { class: "bp-sr" }, ", ") : null), h("span", { class: "bp-lab" }, rich(label))),
       );
     });
     fs.append(scale);
@@ -189,7 +199,7 @@ export function mountSession(el: HTMLElement, study: Study, opts: SessionOptions
       "label",
       { class: "bp-toggle" },
       box,
-      " Keyboard shortcuts: 1–5 answer, Enter next, Shift+Enter back, Space play or pause, R replay",
+      ` Keyboard shortcuts: ${numberKeys()} answer, Enter next, Shift+Enter back, Space play or pause, R replay`,
     );
   }
 
@@ -219,8 +229,9 @@ export function mountSession(el: HTMLElement, study: Study, opts: SessionOptions
           "div",
           { class: "bp-qintro" },
           h("p", { class: "bp-legend" }, h("span", { class: "bp-qnum" }, `${k + 1}. `), "“", rich(q.text), "”"),
-          q.direction ? h("p", { class: "bp-dir" }, rich(q.direction)) : null,
-          h("ol", { class: "bp-key" }, ...scaleOf(q).labels.map((l) => h("li", {}, rich(l)))),
+          // a choice question's options are shown with the question itself; an ordered key would imply an order
+          isChoice(scaleOf(q)) ? null : q.direction ? h("p", { class: "bp-dir" }, rich(q.direction)) : null,
+          isChoice(scaleOf(q)) ? null : h("ol", { class: "bp-key" }, ...scaleOf(q).labels.map((l) => h("li", {}, rich(l)))),
           ...[...q.notes, ...q.intro_notes].map((n) => h("p", { class: "bp-note" }, rich(n))),
         ),
       ),
@@ -354,12 +365,14 @@ export function mountSession(el: HTMLElement, study: Study, opts: SessionOptions
     const t = e.target as HTMLElement;
     const tag = t?.tagName;
     const control = tag === "BUTTON" || tag === "A" || tag === "SUMMARY" || tag === "VIDEO" || tag === "SELECT" || tag === "TEXTAREA" || (tag === "INPUT" && (t as HTMLInputElement).type !== "radio");
-    if (/^[1-5]$/.test(e.key) && (s.kind === "panel" || s.kind === "clip")) {
+    const pressed = keyValue(e.key);
+    if (pressed !== null && (s.kind === "panel" || s.kind === "clip")) {
       const sets = [...screen.querySelectorAll<HTMLFieldSetElement>("fieldset.bp-q")];
       const focused = (t?.closest?.("fieldset.bp-q") as HTMLFieldSetElement | null) ?? null;
       const target = focused ?? sets.find((f) => !f.querySelector("input:checked"));
       if (!target) return;
-      const input = target.querySelector<HTMLInputElement>(`input[value="${e.key}"]`)!;
+      const input = target.querySelector<HTMLInputElement>(`input[value="${pressed}"]`);
+      if (!input) return; // that question has no such option (ordinal scales have five, choices up to twelve)
       e.preventDefault();
       state.keyboardUsed = true;
       input.checked = true;
