@@ -89,9 +89,9 @@ export function mountSession(el: HTMLElement, study: Study, opts: SessionOptions
 
   const qs = (part: Question["part"]) => study.questions.filter((q) => q.part === part);
   const scaleOf = (q: Question) => study.scales[q.scale];
-  /** the number keys that answer, as the shortcut line names them: "1–5" for ordinal scales, "1–9 and 0" from ten options up */
-  const numberKeys = () => {
-    const top = Math.max(...study.questions.map((q) => scaleMax(scaleOf(q))));
+  /** the number keys that answer the given questions, as the shortcut line names them: "1–5" for ordinal scales, "1–9 and 0" from ten options up */
+  const numberKeys = (questions: Question[]) => {
+    const top = Math.max(...questions.map((q) => scaleMax(scaleOf(q))));
     return top <= 9 ? `1–${top}` : "1–9 and 0";
   };
   const panelOf = new Map(study.panels.map((p) => [p.code, p]));
@@ -189,7 +189,7 @@ export function mountSession(el: HTMLElement, study: Study, opts: SessionOptions
     return s.kind === "panel" || s.kind === "clip" ? `${s.n} of ${s.of}` : "";
   }
 
-  function shortcutsToggle() {
+  function shortcutsToggle(questions: Question[]) {
     const box = h("input", { type: "checkbox", checked: state.shortcuts, "data-bp": "shortcuts" });
     box.addEventListener("change", () => {
       state.shortcuts = box.checked;
@@ -199,7 +199,7 @@ export function mountSession(el: HTMLElement, study: Study, opts: SessionOptions
       "label",
       { class: "bp-toggle" },
       box,
-      ` Keyboard shortcuts: ${numberKeys()} answer, Enter next, Shift+Enter back, Space play or pause, R replay`,
+      ` Keyboard shortcuts: ${numberKeys(questions)} answer, Enter next, Shift+Enter back, Space play or pause, R replay`,
     );
   }
 
@@ -237,7 +237,7 @@ export function mountSession(el: HTMLElement, study: Study, opts: SessionOptions
       ),
       h("p", { class: "bp-watch" }, h("strong", {}, rich(study.parts.clips.watch_note))),
       h("p", { class: "bp-privacy" }, rich(study.privacy)),
-      shortcutsToggle(),
+      shortcutsToggle(study.questions),
       h("div", { class: "bp-nav" }, h("span"), start),
     );
   }
@@ -284,7 +284,7 @@ export function mountSession(el: HTMLElement, study: Study, opts: SessionOptions
     }
     const questions = qs(part);
     questions.forEach((q, k) => put(screen, question(q, part, s.code, part === "clips" && questions.length > 1 ? k + 1 : null, onChange)));
-    put(screen, navEl, shortcutsToggle());
+    put(screen, navEl, shortcutsToggle(questions));
   }
 
   function renderEnd(i: number, s: Extract<Step, { kind: "end" }>) {

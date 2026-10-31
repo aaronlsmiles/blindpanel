@@ -128,6 +128,29 @@ describe("choice questions in the session", () => {
     await mount();
     expect($('[data-bp="shortcuts"]').closest("label")!.textContent).toContain("1–9 and 0 answer");
   });
+  test("in a mixed study the shortcut line follows the questions on the screen", async () => {
+    const mixed = structuredClone(synthetic);
+    mixed.scales.same = { kind: "choice", min: 1, max: 12, labels: Array.from({ length: 12 }, (_, i) => `Option ${i + 1}`) };
+    mixed.questions.find((q) => q.id === "same")!.direction = undefined;
+    const c = await mount(mixed);
+    const line = () => $('[data-bp="shortcuts"]').closest("label")!.textContent!;
+    expect(line()).toContain("1–9 and 0 answer"); // the intro covers every question
+    btn("start").click();
+    expect(c.getState().kind).toBe("panel"); // the still's question is ordinal
+    expect(line()).toContain("Keyboard shortcuts: 1–5 answer");
+    while (c.getState().kind === "panel") {
+      pick(sets()[0], 1);
+      btn("next").click();
+    }
+    expect(c.getState().kind).toBe("clip"); // a clip has an ordinal and a 12-option question
+    expect(line()).toContain("1–9 and 0 answer");
+  });
+  test("a choice scale of up to nine options names exactly its keys", async () => {
+    const eight = structuredClone(choice);
+    eight.scales.acts = { ...eight.scales.acts, max: 8, labels: eight.scales.acts.labels.slice(0, 8) };
+    await mount(eight);
+    expect($('[data-bp="shortcuts"]').closest("label")!.textContent).toContain("Keyboard shortcuts: 1–8 answer");
+  });
   test("an ordinal study's shortcut line is unchanged", async () => {
     await mount(synthetic);
     expect($('[data-bp="shortcuts"]').closest("label")!.textContent).toContain("Keyboard shortcuts: 1–5 answer, Enter next, Shift+Enter back, Space play or pause, R replay");
