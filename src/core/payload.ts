@@ -1,4 +1,5 @@
 import { participantOrder, type ParticipantOrder } from "./order.js";
+import { scaleMax } from "./scale.js";
 import type { Study, Submission } from "./types.js";
 
 export const FORMAT = "blindpanel/1";
@@ -38,18 +39,24 @@ export type Validation = { ok: true; value: Submission } | { ok: false; status: 
 const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
 const same = (a: unknown, b: string[]) => Array.isArray(a) && a.length === b.length && a.every((x, i) => x === b[i]);
 
-function answersFor(raw: unknown, codes: string[], questions: string[], part: string): Record<string, Record<string, number>> | string {
+interface Asked {
+  id: string;
+  /** the highest answer its scale takes: 5 for an ordinal scale, the number of options for a choice scale */
+  max: number;
+}
+
+function answersFor(raw: unknown, codes: string[], questions: Asked[], part: string): Record<string, Record<string, number>> | string {
   if (!isObj(raw)) return `answers.${part} must be an object`;
   const keys = Object.keys(raw);
   if (keys.length !== codes.length || !codes.every((c) => c in raw)) return `answers.${part} must cover exactly the ordered items`;
   const out: Record<string, Record<string, number>> = {};
   for (const c of codes) {
     const a = raw[c];
-    if (!isObj(a) || Object.keys(a).length !== questions.length) return `answers.${part}.${c} must answer exactly ${questions.join(", ")}`;
+    if (!isObj(a) || Object.keys(a).length !== questions.length) return `answers.${part}.${c} must answer exactly ${questions.map((x) => x.id).join(", ")}`;
     out[c] = {};
-    for (const q of questions) {
+    for (const { id: q, max } of questions) {
       const v = a[q];
-      if (!Number.isInteger(v) || (v as number) < 1 || (v as number) > 5) return `answers.${part}.${c}.${q} must be an integer from 1 to 5`;
+      if (!Number.isInteger(v) || (v as number) < 1 || (v as number) > max) return `answers.${part}.${c}.${q} must be an integer from 1 to ${max}`;
       out[c][q] = v as number;
     }
   }
@@ -78,7 +85,8 @@ export async function validateSubmission(study: Study, body: unknown): Promise<V
   const baseCodes = used.flatMap((b) => b.baseline);
   if (!same(order.baseline, baseCodes)) return bad("order.baseline does not match the order derived from the session");
 
-  const qs = (part: string) => study.questions.filter((q) => q.part === part).map((q) => q.id);
+  const qs = (part: string): Asked[] =>
+    study.questions.filter((q) => q.part === part).map((q) => ({ id: q.id, max: scaleMax(study.scales[q.scale]) }));
   const answers = isObj(body.answers) ? body.answers : null;
   if (!answers) return bad("answers must be an object");
   const clips = answersFor(answers.clips, clipCodes, qs("clips"), "clips");
