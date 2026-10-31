@@ -6,3 +6,4 @@ export { participantOrder, orderKey, type ParticipantOrder, type Block } from ".
 export { shuffle, rngFor, sha256Hex } from "./rng.js";
 export { parseBold, plainText } from "./text.js";
 export { instrumentText, textHash, canonicalJson } from "./lock.js";
+export { isChoice, scaleMax, keyValue, valueKey } from "./scale.js";

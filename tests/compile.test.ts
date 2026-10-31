@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { parse } from "yaml";
 import { compile } from "../src/core/compile.js";
 import { StudyConfig, studyJsonSchema } from "../src/core/schema.js";
+import { instrumentText } from "../src/core/lock.js";
 
 const DIR = join(import.meta.dirname, "fixtures/mini");
 const read = (p: string) => readFileSync(join(DIR, p), "utf8");
@@ -163,5 +164,43 @@ describe("choice scales (schema)", () => {
   });
   test("an ordinal question still takes a direction", () => {
     expect(ok((c) => (c.questions[2].direction = "5 = yes · 1 = no")).success).toBe(true);
+  });
+});
+
+describe("compile: scale kinds", () => {
+  const compiled = (mutate: (c: any) => void = () => {}) => {
+    const c = raw();
+    mutate(c);
+    return compile(StudyConfig.parse(c), { readText: read, listDir: list });
+  };
+  const SAME = ["No", "Mostly not", "Half and half", "Mostly", "Yes"]; // the fixture's scale `same`
+
+  test("an ordinal scale compiles to kind ordinal, max 5", async () => {
+    const { study } = await compiled();
+    expect(study.scales.same).toEqual({ kind: "ordinal", min: 1, max: 5, labels: SAME });
+  });
+  test("a choice scale compiles to kind choice, max = the number of options", async () => {
+    const { study } = await compiled((c) => (c.scales.same = { kind: "choice", labels: ["A", "B", "C", "D"] }));
+    expect(study.scales.same).toEqual({ kind: "choice", min: 1, max: 4, labels: ["A", "B", "C", "D"] });
+  });
+  test("the lock hashes an ordinal scale exactly as v0.1 did: no kind key", async () => {
+    const { study } = await compiled();
+    expect(Object.keys(instrumentText(study).scales.same).sort()).toEqual(["labels", "max", "min"]);
+  });
+  test("the lock covers a choice scale's kind and options", async () => {
+    const base = (await compiled()).lock.text_sha256;
+    const choice = await compiled((c) => (c.scales.same = { kind: "choice", labels: ["A", "B", "C", "D"] }));
+    expect(Object.keys(instrumentText(choice.study).scales.same).sort()).toEqual(["kind", "labels", "max", "min"]);
+    expect(choice.lock.text_sha256).not.toBe(base);
+    const edited = await compiled((c) => (c.scales.same = { kind: "choice", labels: ["A", "B", "C", "d"] }));
+    expect(edited.lock.text_sha256).not.toBe(choice.lock.text_sha256);
+    // the same five labels as a choice scale are a different instrument from the ordinal scale
+    const asChoice = await compiled((c) => (c.scales.same = { kind: "choice", labels: SAME }));
+    expect(asChoice.lock.text_sha256).not.toBe(base);
+  });
+  test("reference ratings outside a choice scale's options read as missing", async () => {
+    // fixture ratings for `same`: R1 [4, 1, 4], R2 [5, null, 3]; with four options the 5 is out of range
+    const { reveal } = await compiled((c) => (c.scales.same = { kind: "choice", labels: ["A", "B", "C", "D"] }));
+    expect(reveal.reference!.ratings.same).toEqual([[4, 1, 4], [null, null, 3]]);
   });
 });

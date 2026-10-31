@@ -23,8 +23,11 @@ export interface DisplayCopy {
 }
 
 export interface Scale {
+  /** ordinal: five ordered points. choice: 2–12 nominal options (no order, no endpoints). */
+  kind: "ordinal" | "choice";
   min: 1;
-  max: 5;
+  /** 5 for an ordinal scale; the number of options for a choice scale. Answers are integers min…max. */
+  max: number;
   labels: string[];
 }
 
