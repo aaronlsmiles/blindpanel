@@ -26,7 +26,8 @@ const bp = (...args) => ["bin/blindpanel.mjs", ...args];
 run("Install exact dependencies", npm, ["ci", "--no-audit", "--no-fund"]);
 run("Build the kit", npm, ["run", "build"]);
 for (const ex of ["synthetic", "choice", "stilldrawn"]) {
-  run(`Build the ${ex} example`, process.execPath, bp("build", `examples/${ex}/study.yaml`));
+  // --out: the default folder is named after the study id (choice-demo), not the example folder
+  run(`Build the ${ex} example`, process.execPath, bp("build", `examples/${ex}/study.yaml`, "--out", `.blindpanel/build/${ex}`));
   run(`Verify the ${ex} example`, process.execPath, bp("verify", `examples/${ex}/study.yaml`, "--dist", `.blindpanel/build/${ex}`));
 }
 
