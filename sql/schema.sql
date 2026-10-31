@@ -92,6 +92,7 @@ as $$
     ) as item
     -- a malformed row (only possible by hand) is skipped rather than breaking the tally
     cross join lateral jsonb_each_text(case when jsonb_typeof(item.value) = 'object' then item.value else '{}'::jsonb end) as q
+    -- 12 is the most options a choice scale may have (labels .max(12) in src/core/schema.ts). Raise both together.
     where q.value ~ '^([1-9]|1[0-2])$'
   ),
   per_value as (

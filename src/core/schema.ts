@@ -59,6 +59,7 @@ const Scale = z.strictObject({
    * choice: 2–12 nominal options, answered 1…n in the order listed; the numbers carry no order.
    */
   kind: z.enum(["ordinal", "choice"]).prefault("ordinal"),
+  // 12 is also the cap in sql/schema.sql: tally() counts only options 1–12. Raise both together.
   labels: z.array(Wording).min(2).max(12),
 });
 
