@@ -1,3 +1,4 @@
+import { isChoice } from "../core/scale.js";
 import type { Question, Reveal, Study, Submission } from "../core/types.js";
 import type { Tally } from "../server/stores/types.js";
 import { finite, nanmean, spearmanPairs } from "../stats/basic.js";
@@ -198,7 +199,7 @@ export function mountResults(el: HTMLElement, o: ResultsOptions): ResultsControl
     }
     if (l.alpha_panel !== null && l.alpha_with_you !== null)
       facts.push(`Panel agreement on these clips: α ${f2(l.alpha_panel)}; with you added as a ${ordinal(l.of + 1)} rater: α ${f2(l.alpha_with_you)}.`);
-    if (k === 0 && baseQs.length === 1) {
+    if (k === 0 && baseQs.length === 1 && !isChoice(study.scales[baseQs[0].scale])) {
       const pIdx = new Map(study.panels.map((p, i) => [p.code, i]));
       const panelOf = study.parts.clips.items.map((c) => pIdx.get(c.reference)!);
       const mine = study.panels.map((p) => submission.answers.baseline[p.code]?.[baseQs[0].id] ?? null);
@@ -286,6 +287,7 @@ export function mountResults(el: HTMLElement, o: ResultsOptions): ResultsControl
       (t) => {
         const lines: string[] = [];
         for (const [k, q] of clipQs.entries()) {
+          if (isChoice(study.scales[q.scale])) continue; // a mean of option numbers means nothing
           const counts = codes.map((c) => t.items[c]?.[q.id]?.counts).filter((c): c is number[] => !!c);
           if (!counts.length) continue;
           const crowdMean = codes.map((c) => {
@@ -328,7 +330,8 @@ export function mountResults(el: HTMLElement, o: ResultsOptions): ResultsControl
     put(
       body,
       toggle,
-      ...clipQs.map(section),
+      // a choice question has no order to agree on: no ρ, bias or 1–5 strip for it
+      ...clipQs.flatMap((q, k) => (isChoice(study.scales[q.scale]) ? [] : [section(q, k)])),
       revealTable(),
       ref.caveats?.length || ref.attribution
         ? h(
