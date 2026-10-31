@@ -10,6 +10,8 @@ export function tallyRows(study: string, rows: Row[], minN: number): Tally {
         for (const [q, v] of Object.entries(qs)) {
           const cell = ((items[code] ??= {})[q] ??= { n: 0, counts: [0, 0, 0, 0, 0] });
           cell.n++;
+          // a choice question has up to 12 options: the counts grow to the highest one chosen
+          while (cell.counts.length < v) cell.counts.push(0);
           cell.counts[v - 1]++;
         }
       }

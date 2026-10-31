@@ -14,7 +14,11 @@ export interface Row {
 
 export type InsertResult = "ok" | "duplicate" | "cap";
 
-/** Per item and question: how many opted-in visitors chose each scale point (unflagged rows only). */
+/**
+ * Per item and question: how many opted-in visitors chose each scale point or option (unflagged rows
+ * only). `counts[i]` is the number who chose option i + 1; it has 5 entries, or as many as the highest
+ * option chosen when that is more (choice questions have up to 12). Read a missing entry as 0.
+ */
 export interface Tally {
   study: string;
   n_sessions: number;
