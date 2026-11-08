@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
-import { participantOrder } from "../core/order.js";
+import { originalClipCodes, participantOrder, type ParticipantOrder } from "../core/order.js";
 import { plainText } from "../core/text.js";
 import type { Loaded } from "./load.js";
 import { readLock } from "./load.js";
@@ -81,20 +81,31 @@ export async function verify(l: Loaded, o: VerifyOptions = {}): Promise<Check[]>
     const r = l.reveal.reference;
     const empty = Object.entries(r.ratings).filter(([, m]) => m.every((row) => row.every((v) => v === null)));
     check("reference ratings cover every question", !empty.length, `no ratings for ${empty.map(([q]) => q).join(", ")} (check each item's ref)`);
-    // the clip questions only: a baseline question's columns are panels, not clips
+    // one column per original clip, in the clip questions only (a baseline question's columns are panels; repeats have none)
     const clipRatings = s.questions.filter((q) => q.part === "clips").map((q) => r.ratings[q.id]);
-    const unrated = clipCodes.filter((_, j) => clipRatings.every((m) => m.every((row) => row[j] === null)));
+    const unrated = originalClipCodes(s).filter((_, j) => clipRatings.every((m) => m.every((row) => row[j] === null)));
     check("every clip has reference ratings", !unrated.length, `${unrated.length} clip(s) without any`);
   }
 
-  // 3. orders: deterministic, and each block's stills come before its clips
+  // 3. orders: drawable, deterministic, and each block's stills come before its clips
   const sessions = ["00000000-0000-4000-8000-000000000001", "11111111-2222-4333-8444-555555555555", "abcdefab-cdef-4abc-9def-abcdefabcdef"];
   let deterministic = true;
   let baselineFirst = true;
+  let undrawable: string | undefined;
   const firsts = new Set<string>();
+  // a repeats layout no draw can place throws: report it as a failed check, not a stack trace
+  const draw = async (sid: string): Promise<[ParticipantOrder, ParticipantOrder] | null> => {
+    try {
+      return [await participantOrder(s, sid), await participantOrder(s, sid)];
+    } catch (e) {
+      undrawable = (e as Error).message;
+      return null;
+    }
+  };
   for (const sid of sessions) {
-    const a = await participantOrder(s, sid);
-    const b = await participantOrder(s, sid);
+    const ab = await draw(sid);
+    if (!ab) break;
+    const [a, b] = ab;
     if (JSON.stringify(a) !== JSON.stringify(b)) deterministic = false;
     firsts.add(a.clips.join());
     if (s.parts.baseline) {
@@ -105,9 +116,12 @@ export async function verify(l: Loaded, o: VerifyOptions = {}): Promise<Check[]>
       }
     }
   }
-  check("orders are deterministic per session", deterministic);
-  check("orders differ across sessions", clipCodes.length < 3 || firsts.size > 1);
-  if (s.parts.baseline) check("each clip's still is rated before the clip", baselineFirst);
+  check("an order can be drawn for every session", !undrawable, undrawable);
+  if (!undrawable) {
+    check("orders are deterministic per session", deterministic);
+    check("orders differ across sessions", clipCodes.length < 3 || firsts.size > 1);
+    if (s.parts.baseline) check("each clip's still is rated before the clip", baselineFirst);
+  }
 
   // 4. blinding: nothing that names a model before the reveal
   check("banned terms are declared", l.banned.length > 0, "set blinding.banned_terms_file");

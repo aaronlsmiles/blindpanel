@@ -128,5 +128,5 @@ describe("validateSubmission with choice scales", () => {
 test("delivery.ui names the package version", () => {
   const pkg = JSON.parse(readFileSync(join(import.meta.dirname, "../package.json"), "utf8"));
   expect(UI_VERSION).toBe(`blindpanel@${pkg.version}`);
-  expect(pkg.version).toBe("0.2.0");
+  expect(pkg.version).toBe("0.3.0");
 });

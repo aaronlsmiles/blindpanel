@@ -16,3 +16,15 @@ Every participant sees the clips, and the baseline panels, in an order derived f
 ## Recorded orders are data
 
 A reference panel's own orders (for StillDrawn, the six raters' orders from August 2026) were made by an earlier scheme. They are recorded data, not something this scheme reproduces.
+
+## Repeats
+
+A study may show some clips twice, as attention checks (`parts.clips.repeats` in `study.yaml`). Each repeat has its own item, with the seeded code of the id `<clip id>#repeat`, and shows its original's clip beside its original's still. A study with repeats is one block (`extend: false`), and `session_size` is the clips plus the repeats.
+
+1. Shuffle the original codes from `key = "<seed>:clips:<participant>"`, as above.
+2. Insert each repeat's code at its 1-based `position`, lowest position first.
+3. If any repeat now sits fewer than `min_gap` places after its original, or before it, start again from step 1 with the key `"<key>:1"`, then `"<key>:2"`, and so on (at most 10,000 attempts; then the study is refused).
+
+The schema refuses a layout that this search could miss. Sort the repeats by position. The k-th (from 0) has s_k usable places: the positions at or before its own minus `min_gap` that no other repeat takes. One draw then succeeds with probability P = Π (s_k − k) / (n − k), where n is the number of original clips (`repeatPlacementChance` in `src/core/order.ts`). A layout with P = 0 is refused as one that cannot be placed. A layout with P below 0.0028 is refused too: all 10,000 draws could fail. For example, 55 clips with repeats at positions 30 and 52 and `min_gap: 5` give P = 25/55 × 45/54 ≈ 0.379.
+
+`scripts/order_ref.py` implements this too (`order_with_repeats`), and `tests/repeats.test.ts` checks the TypeScript against its vectors. A study without repeats orders exactly as before.

@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.3.0 (unreleased)
+
+- Attention repeats: `parts.clips.repeats` (`min_gap`, `items: [{of, position}]`). Each repeat has its own seeded code (the id `<clip id>#repeat`), shows its original's clip and still, and is placed by a published extension of the order scheme (docs/order.md, "Repeats"; `scripts/order_ref.py` is the reference). Repeats are not wording: the instrument hash is unchanged. A study without repeats compiles and orders exactly as in 0.2.
+- The schema refuses a repeats layout that the order search cannot place: one that no draw satisfies, or one whose chance per draw is below 0.0028, so that all 10,000 draws could fail (docs/order.md, "Repeats"; `repeatPlacementChance`). `withRepeats` refuses a repeat whose original is not among the clips, or whose code is also an original's.
+- Repeats count once. The results page leaves them out of its statistics (n, ρ, α with you added, the strip, the baseline-adjusted mean), and `blindpanel report` leaves them out of the crowd α and its clip count. `verify` checks reference ratings for the original clips only and reports an order that cannot be drawn as a failed check. `blindpanel export` writes a repeat's answers as rows of their own, keyed `<ref>#repeat`. `originalClipCodes(study)` lists a study's own clips.
+- `mountSession(..., { end: { text, button } })`: a host that sends the answers itself replaces the end screen's sentence and button. The offer to rate the remaining clips is left out.
+- `mountSession` resumes saved progress only when the host gave no `session` or the saved progress is for the same one. A reload still resumes; a second participant in the same browser starts fresh on their own session, where before their Send carried the first participant's session.
+- `derivedSession(key)`: a fixed v4 session id from a key, for hosts that give each invited participant a fixed order.
+- docs/hosted.md: hosting a study for invited raters.
+- `delivery.ui` reads `blindpanel@0.3.0`.
+
+### Fixed
+
+- `verify`'s "every clip has reference ratings" check read a baseline question's columns (one per still) as if they were clip columns. In a study with a baseline question, a clip past the number of stills was never flagged, and a clip within that number could pass on a still's ratings. The check now reads the clip questions only.
+
 ## 0.2.0 (2026-11-08)
 
 - **Upgrade step (required for choice scales): re-run `sql/schema.sql` on any live database.** It is safe to repeat and keeps the same function signature. Until it is re-run, `tally()` drops options 6–12 from the crowd counts; the raw submissions are still stored, so nothing is lost, and nothing changes for studies that only use ordinal scales.

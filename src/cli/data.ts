@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { fileStore } from "../server/stores/file.js";
 import { supabaseStore } from "../server/stores/supabase.js";
 import type { Row, Store } from "../server/stores/types.js";
+import { originalClipCodes } from "../core/order.js";
 import { isChoice } from "../core/scale.js";
 import { plainText } from "../core/text.js";
 import { krippendorffNominal, krippendorffOrdinal, nanmean, spearmanPairs } from "../stats/index.js";
@@ -69,7 +70,8 @@ export function exportRows(l: Loaded, rows: Row[], out: string) {
 /** The same numbers the page shows, for the crowd as a whole. */
 export function report(l: Loaded, rows: Row[]): string {
   const kept = rows.filter((r) => r.flags.length === 0 && r.instrument === l.study.instrument);
-  const codes = l.study.parts.clips.items.map((i) => i.code);
+  // original clips only: a repeat is an attention check, not another clip to agree on
+  const codes = originalClipCodes(l.study);
   const ref = l.reveal.reference;
   const lines = [
     `${l.study.title} (${l.study.id}, instrument ${l.study.instrument})`,

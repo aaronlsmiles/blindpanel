@@ -236,6 +236,44 @@
                 }
               },
               "additionalProperties": false
+            },
+            "repeats": {
+              "type": "object",
+              "properties": {
+                "min_gap": {
+                  "default": 5,
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "items": {
+                  "minItems": 1,
+                  "maxItems": 10,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "of": {
+                        "type": "string"
+                      },
+                      "position": {
+                        "type": "integer",
+                        "minimum": 2,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "required": [
+                      "of",
+                      "position"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "items"
+              ],
+              "additionalProperties": false
             }
           },
           "required": [

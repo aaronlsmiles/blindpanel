@@ -6,7 +6,7 @@ Blinded human rating of generated video, as a kit. You write one `study.yaml`, a
 - an export that analysis scripts can read
 - the agreement maths that shows a rater where they land against a reference panel and against automatic metrics
 
-MIT licence. Version 0.2.0. Live demo: [stilldrawn.studionephele.com/rate](https://stilldrawn.studionephele.com/rate). [Film](https://media.studionephele.com/films/v1/blindpanel/16x9.mp4). There you rate clips from the [StillDrawn](https://doi.org/10.5281/zenodo.23072784) benchmark and see how your answers compare with its six raters'.
+MIT licence. Version 0.3.0. Live demo: [stilldrawn.studionephele.com/rate](https://stilldrawn.studionephele.com/rate). [Film](https://media.studionephele.com/films/v1/blindpanel/16x9.mp4). There you rate clips from the [StillDrawn](https://doi.org/10.5281/zenodo.23072784) benchmark and see how your answers compare with its six raters'.
 
 ```bash
 git clone <this repo> blindpanel && cd blindpanel
@@ -109,7 +109,7 @@ Nothing else is stored: no names, accounts, cookies, IP addresses or user agents
 - **Visitors see copies of the stills.** In the StillDrawn example, the six raters rated the original PNG stills (0.4–2.9 MB each). Visitors see high-quality WebP copies instead, about a sixth of the size. The copies are lossy but close: 43–51 dB PSNR against the PNG. The clips are the original files.
 - **The author's earlier wording.** In the StillDrawn panel, the author rated first, before two wording revisions. A switch leaves the author out.
 - **Self-selected visitors.** People choose to rate, so the crowd tally is a curiosity, not a study result.
-- **Public mode only.** Invited panels (passwords per rater) are not built yet.
+- **Invited panels are a hosting recipe, not a mode.** [docs/hosted.md](docs/hosted.md) shows how a host gates a study per participant with the kit's parts (fixed sessions, a host end screen, attention repeats).
 
 ## Layout
 

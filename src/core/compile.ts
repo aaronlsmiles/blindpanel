@@ -28,6 +28,9 @@ const join = (base: string, file: string) =>
   ((base.endsWith("/") ? base : base + "/") + file.replace(/^\.?\//, "")).replace(/^\.\//, "");
 const ext = (file: string | undefined, fallback: string) => (file?.match(/\.[A-Za-z0-9]+$/)?.[0] ?? fallback).toLowerCase();
 
+/** A repeat's item id. Its code is the seeded code of this id, so it never equals its original's. */
+export const repeatId = (of: string) => `${of}#repeat`;
+
 export function parseBanned(text: string): (string | RegExp)[] {
   return text
     .split(/\r?\n/)
@@ -49,7 +52,13 @@ interface RatingsFile {
 const score = (v: unknown, max: number) => (Number.isInteger(v) && (v as number) >= 1 && (v as number) <= max ? (v as number) : null);
 
 export async function compile(c: StudyConfig, io: CompileIO): Promise<Compiled> {
-  const clipCode = await assignCodes(c.blinding.seed, "clip", c.items.clips.map((x) => x.id));
+  const rep = c.parts.clips.repeats;
+  const clipCode = await assignCodes(c.blinding.seed, "clip", [
+    ...c.items.clips.map((x) => x.id),
+    ...(rep?.items.map((r) => repeatId(r.of)) ?? []),
+  ]);
+  const clipOf = (id: string) => c.items.clips.find((x) => x.id === id)!;
+  const revealItem = (x: (typeof c.items.clips)[number]) => ({ label: x.label, meta: x.meta, ...(x.link ? { link: x.link } : {}) });
   const panelCode = await assignCodes(c.blinding.seed, "panel", c.items.panels.map((x) => x.id));
   const remote = isRemote(c.media.base);
   const media: Compiled["media"] = [];
@@ -85,11 +94,28 @@ export async function compile(c: StudyConfig, io: CompileIO): Promise<Compiled> 
       session_size: c.parts.clips.session_size,
       extend: c.parts.clips.extend,
       video: { loop: c.parts.clips.video.loop, muted: true, autoplay: c.parts.clips.video.autoplay },
-      items: c.items.clips.map((x) => ({
-        code: clipCode[x.id],
-        video: place(clipCode[x.id], x.file, ".mp4", x.sha256),
-        reference: panelCode[x.reference],
-      })),
+      items: (() => {
+        const originals = c.items.clips.map((x) => ({
+          code: clipCode[x.id],
+          video: place(clipCode[x.id], x.file, ".mp4", x.sha256),
+          reference: panelCode[x.reference],
+        }));
+        if (!rep) return originals;
+        const byCode = new Map(originals.map((i) => [i.code, i]));
+        // a repeat shows its original's file: no second media entry, no second check
+        return [...originals, ...rep.items.map((r) => {
+          const o = byCode.get(clipCode[r.of])!;
+          return { code: clipCode[repeatId(r.of)], video: o.video, reference: o.reference };
+        })];
+      })(),
+      ...(rep
+        ? {
+            repeats: {
+              min_gap: rep.min_gap,
+              items: rep.items.map((r) => ({ alias: clipCode[repeatId(r.of)], of: clipCode[r.of], position: r.position })),
+            },
+          }
+        : {}),
     },
   };
   const panels = c.items.panels.map((p) => {
@@ -121,18 +147,19 @@ export async function compile(c: StudyConfig, io: CompileIO): Promise<Compiled> 
 
   const reveal: Reveal = {
     study: c.id,
-    items: Object.fromEntries(
-      c.items.clips.map((x) => [
-        clipCode[x.id],
-        { label: x.label, meta: x.meta, ...(x.link ? { link: x.link } : {}) },
-      ]),
-    ),
+    items: Object.fromEntries([
+      ...c.items.clips.map((x) => [clipCode[x.id], revealItem(x)] as const),
+      ...(rep?.items ?? []).map((r) => [clipCode[repeatId(r.of)], revealItem(clipOf(r.of))] as const),
+    ]),
     reference: c.reference ? loadReference(c, io) : null,
   };
 
   const banned = c.blinding.banned_terms_file ? parseBanned(io.readText(c.blinding.banned_terms_file)) : [];
   const refs = {
-    clips: Object.fromEntries(c.items.clips.map((x) => [clipCode[x.id], x.ref ?? x.id])),
+    clips: Object.fromEntries([
+      ...c.items.clips.map((x) => [clipCode[x.id], x.ref ?? x.id] as const),
+      ...(rep?.items ?? []).map((r) => [clipCode[repeatId(r.of)], repeatId(clipOf(r.of).ref ?? r.of)] as const),
+    ]),
     panels: Object.fromEntries(c.items.panels.map((x) => [panelCode[x.id], x.ref ?? x.id])),
   };
   return { study, reveal, lock: { instrument: c.instrument, text_sha256 }, media, checks, banned, refs };

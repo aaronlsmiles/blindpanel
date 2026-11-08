@@ -86,6 +86,22 @@ parts:
 
 Before each block of clips, the visitor rates the stills those clips were made from (if they have not rated them yet).
 
+### Repeats (attention checks)
+
+```yaml
+parts:
+  clips:
+    session_size: 57         # the clips plus the repeats
+    extend: false            # required with repeats
+    repeats:
+      min_gap: 5             # a repeat sits at least 5 places after its original
+      items:
+        - { of: clip-07, position: 30 }
+        - { of: clip-31, position: 52 }
+```
+
+The visitor answers a repeat like any clip; its answer is stored under the repeat's own code. Nothing on the page says a clip is repeated, but `study.json` lists the repeats: each repeat's code, its original's code and its position. The browser needs them to derive the order, and a repeat's video address is its original's file, so anyone who reads `study.json` can tell which clips come twice. `blindpanel export` writes a repeat's answers as rows of their own, keyed `<ref>#repeat`. The results page, `blindpanel report` and `verify`'s reference-ratings check count the original clips only. The instrument lock does not cover repeats: they are design, not wording, so adding them keeps the wording hash.
+
 ## Items
 
 ```yaml

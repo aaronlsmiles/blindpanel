@@ -1,3 +1,4 @@
+import { originalClipCodes } from "../core/order.js";
 import { isChoice } from "../core/scale.js";
 import type { Question, Reveal, Study, Submission } from "../core/types.js";
 import type { Tally } from "../server/stores/types.js";
@@ -52,7 +53,10 @@ export function mountResults(el: HTMLElement, o: ResultsOptions): ResultsControl
 
   const clipQs = study.questions.filter((q) => q.part === "clips");
   const baseQs = study.questions.filter((q) => q.part === "baseline");
-  const codes = study.parts.clips.items.map((i) => i.code);
+  // original clips only, in study order (the reference panel's columns): a repeat is an attention
+  // check, so it adds nothing to n, ρ, α, the strip or the baseline-adjusted mean
+  const codes = originalClipCodes(study);
+  const own = new Set(codes);
   const seen = submission.order.clips;
   const seenNo = new Map(seen.map((c, i) => [c, i + 1]));
   const qName = (q: Question, k: number) => q.short ?? `Question ${k + 1}`;
@@ -74,7 +78,7 @@ export function mountResults(el: HTMLElement, o: ResultsOptions): ResultsControl
   }
 
   function strip(q: Question, panel: (number | null)[][], raters: string[], yours: (number | null)[]) {
-    const rows = seen.map((code) => {
+    const rows = seen.filter((code) => own.has(code)).map((code) => {
       const j = codes.indexOf(code);
       const vals = panel.map((r) => r[j]);
       const mean = nanmean(vals);
@@ -201,7 +205,8 @@ export function mountResults(el: HTMLElement, o: ResultsOptions): ResultsControl
       facts.push(`Panel agreement on these clips: α ${f2(l.alpha_panel)}; with you added as a ${ordinal(l.of + 1)} rater: α ${f2(l.alpha_with_you)}.`);
     if (k === 0 && baseQs.length === 1 && !isChoice(study.scales[baseQs[0].scale])) {
       const pIdx = new Map(study.panels.map((p, i) => [p.code, i]));
-      const panelOf = study.parts.clips.items.map((c) => pIdx.get(c.reference)!);
+      const stillOf = new Map(study.parts.clips.items.map((c) => [c.code, c.reference]));
+      const panelOf = codes.map((c) => pIdx.get(stillOf.get(c)!)!);
       const mine = study.panels.map((p) => submission.answers.baseline[p.code]?.[baseQs[0].id] ?? null);
       const adj = baselineAdjusted(yours, panelOf, mine);
       if (adj.mean !== null)

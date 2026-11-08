@@ -7,7 +7,10 @@ import { h, put, rich } from "./dom.js";
 import { clear, load, safeStorage, save } from "./storage.js";
 
 export interface SessionOptions {
-  /** a random UUID; made here when absent (and kept with the saved progress) */
+  /**
+   * a random UUID; made here when absent (and kept with the saved progress). When given, only progress
+   * saved for this same session is resumed: another participant in the same browser starts fresh.
+   */
   session?: string;
   /** where progress is kept; null turns saving off. Defaults to localStorage. */
   storage?: Storage | null;
@@ -16,6 +19,12 @@ export interface SessionOptions {
   /** defaults to the prefers-reduced-motion media query */
   reducedMotion?: boolean;
   now?: () => number;
+  /**
+   * For a host that sends the answers itself and shows no results (docs/hosted.md): the end screen's
+   * sentence and its button's label. The offer to rate the remaining clips is not shown (the host
+   * decides what comes next). The button still emits `complete`.
+   */
+  end?: { text: string; button: string };
 }
 
 export interface CompleteEvent {
@@ -68,7 +77,9 @@ export function mountSession(el: HTMLElement, study: Study, opts: SessionOptions
   const now = opts.now ?? (() => Date.now());
   const reduced = opts.reducedMotion ?? prefersReduced();
   const autoplay = study.parts.clips.video.autoplay === "unless_reduced_motion" && !reduced;
-  const saved = load<Saved>(store, key);
+  const loaded = load<Saved>(store, key);
+  // a host's session resumes only its own progress: another participant in this browser starts fresh
+  const saved = loaded && (!opts.session || loaded.session === opts.session) ? loaded : null;
   const state: Saved = saved ?? {
     session: opts.session ?? globalThis.crypto.randomUUID(),
     step: 0,
@@ -290,10 +301,11 @@ export function mountSession(el: HTMLElement, study: Study, opts: SessionOptions
   function renderEnd(i: number, s: Extract<Step, { kind: "end" }>) {
     const rated = steps.slice(0, i).filter((x) => x.kind === "clip").length;
     const remaining = order!.blocks.slice(state.blocks).reduce((a, b) => a + b.clips.length, 0);
-    const see = h("button", { type: "button", class: "bp-btn bp-primary", "data-bp": "finish" }, "See where you land");
+    const see = h("button", { type: "button", class: "bp-btn bp-primary", "data-bp": "finish" }, opts.end?.button ?? "See where you land");
     see.addEventListener("click", finish);
+    // a host's end screen (opts.end) offers no extension: the host decides what comes next
     const more =
-      remaining && s.block === state.blocks - 1
+      !opts.end && remaining && s.block === state.blocks - 1
         ? h("button", { type: "button", class: "bp-btn", "data-bp": "extend" }, remaining === 1 ? "Rate the last clip first" : `Rate the other ${remaining} clips first`)
         : null;
     more?.addEventListener("click", () => {
@@ -305,7 +317,7 @@ export function mountSession(el: HTMLElement, study: Study, opts: SessionOptions
     back.addEventListener("click", () => go(i - 1));
     put(screen, 
       heading(`Done: ${rated} ${rated === 1 ? "clip" : "clips"} rated`),
-      h("p", {}, "Next you'll see which model made each clip and how your answers compare with the reference panel's."),
+      h("p", {}, opts.end?.text ?? "Next you'll see which model made each clip and how your answers compare with the reference panel's."),
       remaining && more ? h("p", {}, `The panel's raters each did all ${rated + remaining}. You can do the rest first if you like.`) : null,
       h("div", { class: "bp-nav bp-nav-end" }, back, more, see),
     );
