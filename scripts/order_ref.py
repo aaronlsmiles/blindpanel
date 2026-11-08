@@ -53,6 +53,11 @@ def order_with_repeats(originals, key, repeats, min_gap, max_attempts=10_000):
     """docs/order.md, "Repeats": shuffle the originals from `key`; insert each repeat's alias at its
     1-based position, lowest position first; if any alias then sits fewer than `min_gap` places after
     its original (or before it), redraw from f"{key}:{attempt}" for attempt = 1, 2, ..."""
+    for r in repeats:
+        if r["of"] not in originals:
+            raise ValueError(f"repeat {r['alias']}: its original {r['of']} is not among the clips")
+        if r["alias"] in originals:
+            raise ValueError(f"repeat {r['alias']} is also an original clip")
     inserts = sorted(repeats, key=lambda r: r["position"])
     for attempt in range(max_attempts):
         out = shuffle(originals, key if attempt == 0 else f"{key}:{attempt}")
@@ -77,6 +82,8 @@ def main():
     repeat_vectors = [{"key": f"demo:clips:{p}", "originals": originals, "repeats": reps, "min_gap": 3,
                        "order": order_with_repeats(originals, f"demo:clips:{p}", reps, 3)}
                       for p in ("a", "b", "c", "d")]
+    repeat_vectors.append({"key": "demo:clips:d", "originals": originals, "repeats": reps, "min_gap": 4,
+                           "order": order_with_repeats(originals, "demo:clips:d", reps, 4)})
     print(json.dumps({"next": {"key": "demo:clips:a", "values": [rng.next() for _ in range(10)]},
                       "vectors": vectors, "repeats": repeat_vectors}, indent=1))
 

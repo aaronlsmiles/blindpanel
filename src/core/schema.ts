@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { MIN_REPEAT_CHANCE, repeatPlacementChance } from "./order.js";
 import { hasMarkup, plainText } from "./text.js";
 
 const Wording = z
@@ -188,15 +189,28 @@ export const StudyConfig = z
       if (c.parts.clips.extend) err(["parts", "clips", "extend"], "a study with repeats is one block: extend must be false");
       if (c.parts.clips.session_size !== total)
         err(["parts", "clips", "session_size"], `with repeats, session_size is the clips plus the repeats (${total})`);
+      // a layout error stops the placement check below: its chance would only repeat the error
+      let laidOut = true;
+      const bad = (path: (string | number)[], message: string) => {
+        laidOut = false;
+        err(path, message);
+      };
       rep.items.forEach((r, i) => {
-        if (!clipIds.includes(r.of)) err(["parts", "clips", "repeats", "items", i, "of"], `no clip named ${r.of}`);
+        if (!clipIds.includes(r.of)) bad(["parts", "clips", "repeats", "items", i, "of"], `no clip named ${r.of}`);
         if (r.position <= rep.min_gap || r.position > total)
-          err(["parts", "clips", "repeats", "items", i, "position"], `position must be from ${rep.min_gap + 1} to ${total}`);
+          bad(["parts", "clips", "repeats", "items", i, "position"], `position must be from ${rep.min_gap + 1} to ${total}`);
       });
       const twice = dup(rep.items.map((r) => r.of));
-      if (twice) err(["parts", "clips", "repeats", "items"], `clip ${twice} is repeated more than once`);
+      if (twice) bad(["parts", "clips", "repeats", "items"], `clip ${twice} is repeated more than once`);
       const same = dup(rep.items.map((r) => String(r.position)));
-      if (same) err(["parts", "clips", "repeats", "items"], `two repeats at position ${same}`);
+      if (same) bad(["parts", "clips", "repeats", "items"], `two repeats at position ${same}`);
+      // docs/order.md, "Repeats": the order is searched by redrawing, so refuse a layout it cannot (or may not) find
+      if (laidOut) {
+        const chance = repeatPlacementChance(c.items.clips.length, rep.items.map((r) => r.position), rep.min_gap);
+        if (chance === 0) err(["parts", "clips", "repeats", "items"], "repeats cannot be placed");
+        else if (chance < MIN_REPEAT_CHANCE)
+          err(["parts", "clips", "repeats", "items"], "repeats are too unlikely to place: the 10,000-draw order search could fail");
+      }
     }
     if (!isRemote(c.media.base)) {
       c.items.panels.forEach((p, i) => p.file || err(["items", "panels", i, "file"], "local media need a file"));
