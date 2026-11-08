@@ -5,8 +5,8 @@ type: software
 authors:
   - family-names: Smiles
     given-names: Aaron
-version: 0.1.0
-date-released: 2026-10-30
+version: 0.2.0
+date-released: 2026-11-08
 license: MIT
 repository-code: https://github.com/aaronlsmiles/blindpanel
 references:
