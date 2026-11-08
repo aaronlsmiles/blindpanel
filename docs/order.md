@@ -16,3 +16,13 @@ Every participant sees the clips, and the baseline panels, in an order derived f
 ## Recorded orders are data
 
 A reference panel's own orders (for StillDrawn, the six raters' orders from August 2026) were made by an earlier scheme. They are recorded data, not something this scheme reproduces.
+
+## Repeats
+
+A study may show some clips twice, as attention checks (`parts.clips.repeats` in `study.yaml`). Each repeat has its own item, with the seeded code of the id `<clip id>#repeat`, and shows its original's clip beside its original's still. A study with repeats is one block (`extend: false`), and `session_size` is the clips plus the repeats.
+
+1. Shuffle the original codes from `key = "<seed>:clips:<participant>"`, as above.
+2. Insert each repeat's code at its 1-based `position`, lowest position first.
+3. If any repeat now sits fewer than `min_gap` places after its original, or before it, start again from step 1 with the key `"<key>:1"`, then `"<key>:2"`, and so on (at most 10,000 attempts; then the study is refused).
+
+`scripts/order_ref.py` implements this too (`order_with_repeats`), and `tests/repeats.test.ts` checks the TypeScript against its vectors. A study without repeats orders exactly as before.

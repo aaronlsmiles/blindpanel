@@ -49,6 +49,20 @@ def shuffle(items, key):
     return out
 
 
+def order_with_repeats(originals, key, repeats, min_gap, max_attempts=10_000):
+    """docs/order.md, "Repeats": shuffle the originals from `key`; insert each repeat's alias at its
+    1-based position, lowest position first; if any alias then sits fewer than `min_gap` places after
+    its original (or before it), redraw from f"{key}:{attempt}" for attempt = 1, 2, ..."""
+    inserts = sorted(repeats, key=lambda r: r["position"])
+    for attempt in range(max_attempts):
+        out = shuffle(originals, key if attempt == 0 else f"{key}:{attempt}")
+        for r in inserts:
+            out.insert(r["position"] - 1, r["alias"])
+        if all(out.index(r["alias"]) - out.index(r["of"]) >= min_gap for r in inserts):
+            return out
+    raise RuntimeError(f"no order puts every repeat at least {min_gap} places after its original")
+
+
 def main():
     items = [f"x{i}" for i in range(10)]
     vectors = []
@@ -58,8 +72,13 @@ def main():
                 key = f"{seed}:{part}:{participant}"
                 vectors.append({"key": key, "items": items, "order": shuffle(items, key)})
     rng = Xoshiro128ss("demo:clips:a")
+    originals = [f"x{i}" for i in range(12)]
+    reps = [{"alias": "r0", "of": "x3", "position": 7}, {"alias": "r1", "of": "x8", "position": 13}]
+    repeat_vectors = [{"key": f"demo:clips:{p}", "originals": originals, "repeats": reps, "min_gap": 3,
+                       "order": order_with_repeats(originals, f"demo:clips:{p}", reps, 3)}
+                      for p in ("a", "b", "c", "d")]
     print(json.dumps({"next": {"key": "demo:clips:a", "values": [rng.next() for _ in range(10)]},
-                      "vectors": vectors}, indent=1))
+                      "vectors": vectors, "repeats": repeat_vectors}, indent=1))
 
 
 if __name__ == "__main__":

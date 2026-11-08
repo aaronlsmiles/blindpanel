@@ -103,6 +103,14 @@ export const StudyConfig = z
             autoplay: z.enum(["unless_reduced_motion", "never"]).prefault("unless_reduced_motion"),
           })
           .prefault({}),
+        /** attention repeats: clips shown a second time at fixed positions (0.3) */
+        repeats: z
+          .strictObject({
+            /** a repeat sits at least this many places after its original */
+            min_gap: z.int().min(1).prefault(5),
+            items: z.array(z.strictObject({ of: z.string(), position: z.int().min(2) })).min(1).max(10),
+          })
+          .optional(),
       }),
     }),
     items: z.strictObject({
@@ -171,8 +179,25 @@ export const StudyConfig = z
     c.items.clips.forEach((x, i) => {
       if (!panels.includes(x.reference)) err(["items", "clips", i, "reference"], `no panel named ${x.reference}`);
     });
-    if (c.parts.clips.session_size > c.items.clips.length)
+    const rep = c.parts.clips.repeats;
+    if (!rep && c.parts.clips.session_size > c.items.clips.length)
       err(["parts", "clips", "session_size"], "session_size is larger than the number of clips");
+    if (rep) {
+      const total = c.items.clips.length + rep.items.length;
+      const clipIds = c.items.clips.map((x) => x.id);
+      if (c.parts.clips.extend) err(["parts", "clips", "extend"], "a study with repeats is one block: extend must be false");
+      if (c.parts.clips.session_size !== total)
+        err(["parts", "clips", "session_size"], `with repeats, session_size is the clips plus the repeats (${total})`);
+      rep.items.forEach((r, i) => {
+        if (!clipIds.includes(r.of)) err(["parts", "clips", "repeats", "items", i, "of"], `no clip named ${r.of}`);
+        if (r.position <= rep.min_gap || r.position > total)
+          err(["parts", "clips", "repeats", "items", i, "position"], `position must be from ${rep.min_gap + 1} to ${total}`);
+      });
+      const twice = dup(rep.items.map((r) => r.of));
+      if (twice) err(["parts", "clips", "repeats", "items"], `clip ${twice} is repeated more than once`);
+      const same = dup(rep.items.map((r) => String(r.position)));
+      if (same) err(["parts", "clips", "repeats", "items"], `two repeats at position ${same}`);
+    }
     if (!isRemote(c.media.base)) {
       c.items.panels.forEach((p, i) => p.file || err(["items", "panels", i, "file"], "local media need a file"));
       c.items.panels.forEach((p, i) =>

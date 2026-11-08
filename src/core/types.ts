@@ -58,6 +58,15 @@ export interface ClipsPart {
   extend: boolean;
   video: { loop: boolean; muted: true; autoplay: "unless_reduced_motion" | "never" };
   items: { code: string; video: string; reference: string }[];
+  /** attention repeats (0.3): each alias is also an item, showing its original's clip beside its original's still */
+  repeats?: Repeats;
+}
+
+export interface Repeats {
+  /** a repeat sits at least this many places after its original */
+  min_gap: number;
+  /** 1-based positions in the participant's sequence of session_size items */
+  items: { alias: string; of: string; position: number }[];
 }
 
 /** Fetched only after the visitor finishes: the declared blinding exemption. */
