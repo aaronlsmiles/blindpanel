@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.0 (unreleased)
+## 0.3.0 (2026-11-08)
 
 - Attention repeats: `parts.clips.repeats` (`min_gap`, `items: [{of, position}]`). Each repeat has its own seeded code (the id `<clip id>#repeat`), shows its original's clip and still, and is placed by a published extension of the order scheme (docs/order.md, "Repeats"; `scripts/order_ref.py` is the reference). Repeats are not wording: the instrument hash is unchanged. A study without repeats compiles and orders exactly as in 0.2.
 - The schema refuses a repeats layout that the order search cannot place: one that no draw satisfies, or one whose chance per draw is below 0.0028, so that all 10,000 draws could fail (docs/order.md, "Repeats"; `repeatPlacementChance`). `withRepeats` refuses a repeat whose original is not among the clips, or whose code is also an original's.
