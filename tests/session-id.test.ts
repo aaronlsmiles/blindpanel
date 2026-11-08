@@ -16,7 +16,7 @@ function expected(key: string) {
 const UUID4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
 describe("derivedSession", () => {
-  test.each(["20261104:a13-burst:session:R24", "20261104:a13-push:session:R24", "x"])("%s", async (key) => {
+  test.each(["20260101:example-study:session:slot-1", "20260101:example-study:session:slot-2", "x"])("%s", async (key) => {
     const s = await derivedSession(key);
     expect(s).toMatch(UUID4);
     expect(s).toBe(expected(key));
@@ -27,7 +27,8 @@ describe("derivedSession", () => {
   });
   test("a derived session runs through the order, the submission and the server's check", async () => {
     const { study } = await loadExample("synthetic", withSyntheticRepeat);
-    const session = await derivedSession(`20261104:${study.id}:session:R24`);
+    const seed = "20260101";
+    const session = await derivedSession(`${seed}:${study.id}:session:slot-1`);
     const order = await participantOrder(study, session);
     const q = (part: string) => study.questions.filter((x) => x.part === part).map((x) => x.id);
     const answers = {

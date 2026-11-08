@@ -78,7 +78,7 @@ describe("repeats: schema", () => {
   ])("rejects %s, at its path", (_name, edit, path, message) => {
     expect(issues(withRepeat(edit))).toEqual([{ path, message: expect.stringMatching(message) }]);
   });
-  test("the chance one draw places every repeat: A13's shape (55 clips, 30 and 52, min_gap 5) is 25/55 × 45/54 = 25/66 ≈ 0.379", () => {
+  test("the chance one draw places every repeat: a 55-clip study with repeats at 30 and 52, min_gap 5, is 25/55 × 45/54 = 25/66 ≈ 0.379", () => {
     expect(repeatPlacementChance(55, [30, 52], 5)).toBeCloseTo(25 / 66, 12);
     expect(repeatPlacementChance(55, [52, 30], 5).toFixed(3)).toBe("0.379");
     expect(repeatPlacementChance(3, [4], 2)).toBeCloseTo(2 / 3, 12); // the mini study above
@@ -91,7 +91,7 @@ describe("repeats: schema", () => {
   ] as [number, number[], number][])("the chance matches brute force: %i clips, positions %j, min_gap %i", (n, positions, gap) => {
     expect(repeatPlacementChance(n, positions, gap)).toBeCloseTo(bruteChance(n, positions, gap), 12);
   });
-  test("A13's shape is accepted", () => {
+  test("a 55-clip study with repeats at 30 and 52, min_gap 5, is accepted", () => {
     expect(issues(manyClips(55, 5, [{ of: 6, position: 30 }, { of: 30, position: 52 }]))).toEqual([]);
   });
   test(`a layout below ${MIN_REPEAT_CHANCE} is refused as too unlikely; just above it, accepted`, () => {

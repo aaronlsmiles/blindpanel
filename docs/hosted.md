@@ -18,4 +18,4 @@
 5. **No tally** (`modes.public.tally: false`), `noindex` on every page and header, no third-party scripts, and no platform participant id on the page, in the URL or in the store.
 6. **Several studies in one sitting:** mount the next study after the previous one's answers are stored, with a break screen between them.
 
-A reference host built this way serves StillDrawn's adherence studies (amendment A13 of its pre-registration) to paid raters.
+A reference host built this way serves StillDrawn's hosted rating studies to paid raters.
