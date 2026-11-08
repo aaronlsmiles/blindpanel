@@ -75,6 +75,20 @@ describe("verify catches each problem", () => {
     expect(await main(["lock", y])).toBe(0);
     expect(failed(await verify(await loadStudy(y)))).toEqual([]);
   });
+  test("a clip without reference ratings, past the panel count (a baseline question's columns are panels)", async () => {
+    // the synthetic study has two stills and three clips: take c03, the third clip, out of every reference rater's file
+    const dir = freshCopy();
+    for (const r of ["S1", "S2", "S3"]) {
+      const p = join(dir, "reference", `ratings-${r}.json`);
+      const d = JSON.parse(readFileSync(p, "utf8"));
+      d.ratings = d.ratings.filter((x: { clip: string }) => x.clip !== "c03");
+      writeFileSync(p, JSON.stringify(d));
+    }
+    const cs = await verify(await loadStudy(join(dir, "study.yaml")));
+    expect(cs.find((c) => c.name === "every clip has reference ratings")).toEqual({
+      name: "every clip has reference ratings", ok: false, detail: "1 clip(s) without any",
+    });
+  });
   test("a changed media file", async () => {
     const dir = freshCopy();
     appendFileSync(join(dir, "media/box-drift.mp4"), "x");
