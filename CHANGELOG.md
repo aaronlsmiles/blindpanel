@@ -11,10 +11,6 @@
 - docs/hosted.md: hosting a study for invited raters.
 - `delivery.ui` reads `blindpanel@0.3.0`.
 
-### Fixed
-
-- `verify`'s "every clip has reference ratings" check read a baseline question's columns (one per still) as if they were clip columns. In a study with a baseline question, a clip past the number of stills was never flagged, and a clip within that number could pass on a still's ratings. The check now reads the clip questions only.
-
 ## 0.2.0 (2026-11-08)
 
 - **Upgrade step (required for choice scales): re-run `sql/schema.sql` on any live database.** It is safe to repeat and keeps the same function signature. Until it is re-run, `tally()` drops options 6–12 from the crowd counts; the raw submissions are still stored, so nothing is lost, and nothing changes for studies that only use ordinal scales.
