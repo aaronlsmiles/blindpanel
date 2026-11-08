@@ -1,6 +1,7 @@
 import { assignCodes } from "./codes.js";
 import { instrumentText, textHash } from "./lock.js";
 import { isRemote, type StudyConfig } from "./schema.js";
+import { maxFor } from "./scale.js";
 import type { Metric, Question, Reveal, Study } from "./types.js";
 
 export interface CompileIO {
@@ -45,7 +46,7 @@ interface RatingsFile {
   baseline?: ({ panel: string } & Record<string, unknown>)[];
 }
 
-const score = (v: unknown) => (Number.isInteger(v) && (v as number) >= 1 && (v as number) <= 5 ? (v as number) : null);
+const score = (v: unknown, max: number) => (Number.isInteger(v) && (v as number) >= 1 && (v as number) <= max ? (v as number) : null);
 
 export async function compile(c: StudyConfig, io: CompileIO): Promise<Compiled> {
   const clipCode = await assignCodes(c.blinding.seed, "clip", c.items.clips.map((x) => x.id));
@@ -69,8 +70,11 @@ export async function compile(c: StudyConfig, io: CompileIO): Promise<Compiled> 
   const questions: Question[] = c.questions.map((q) => ({
     id: q.id, ...(q.short ? { short: q.short } : {}), part: q.part, text: q.text, direction: q.direction, notes: q.notes, intro_notes: q.intro_notes, scale: q.scale,
   }));
-  const scales = Object.fromEntries(
-    Object.entries(c.scales).map(([k, s]) => [k, { min: 1 as const, max: 5 as const, labels: s.labels }]),
+  const scales: Study["scales"] = Object.fromEntries(
+    Object.entries(c.scales).map(([k, s]) => [
+      k,
+      { kind: s.kind, min: 1 as const, max: maxFor(s.kind, s.labels), labels: s.labels },
+    ]),
   );
   const parts: Study["parts"] = {
     baseline: c.parts.baseline ? { intro: c.parts.baseline.intro } : null,
@@ -146,12 +150,14 @@ function loadReference(c: StudyConfig, io: CompileIO): NonNullable<Reveal["refer
   const panelRefs = c.items.panels.map((x) => x.ref ?? x.id);
   const ratings: Record<string, (number | null)[][]> = {};
   for (const q of c.questions) {
+    const s = c.scales[q.scale];
+    const max = maxFor(s.kind, s.labels);
     ratings[q.id] = data.map((d) => {
       if (q.part === "clips") {
-        const got = new Map((d.ratings ?? []).map((r) => [r.clip, score(r[q.id])]));
+        const got = new Map((d.ratings ?? []).map((r) => [r.clip, score(r[q.id], max)]));
         return clipRefs.map((r) => got.get(r) ?? null);
       }
-      const got = new Map((d.baseline ?? []).map((r) => [r.panel, score(r[q.id])]));
+      const got = new Map((d.baseline ?? []).map((r) => [r.panel, score(r[q.id], max)]));
       return panelRefs.map((r) => got.get(r) ?? null);
     });
   }

@@ -6,6 +6,21 @@ import { finite, type Maybe } from "./basic.js";
 
 /** matrix: raters x items, values 1..5 or null. Null when nothing is pairable. */
 export function krippendorffOrdinal(matrix: Maybe[][]): number | null {
+  return alphaFromCoincidence(coincidence(matrix), "ordinal");
+}
+
+/**
+ * Nominal Krippendorff's alpha, for choice questions: any two different options disagree equally
+ * (difference 0 if equal, 1 otherwise), so the order of the option numbers carries no meaning.
+ * Same coincidence matrix as the ordinal alpha; only the difference function changes.
+ * matrix: raters x items, values 1..12 or null. Null when nothing is pairable or nobody varies.
+ */
+export function krippendorffNominal(matrix: Maybe[][]): number | null {
+  return alphaFromCoincidence(coincidence(matrix), "nominal");
+}
+
+/** The coincidence matrix over the values present, in ascending order (a line-for-line port, see above). */
+function coincidence(matrix: Maybe[][]): number[][] {
   const present = new Set<number>();
   for (const row of matrix) for (const v of row) if (finite(v)) present.add(Math.trunc(v));
   const values = [...present].sort((a, b) => a - b);
@@ -21,7 +36,7 @@ export function krippendorffOrdinal(matrix: Maybe[][]): number | null {
     for (let i = 0; i < idx.length; i++)
       for (let k = 0; k < idx.length; k++) if (i !== k) coin[idx[i]][idx[k]] += 1.0 / (mu - 1);
   }
-  return alphaFromCoincidence(coin);
+  return coin;
 }
 
 /** Alpha from per-item counts of each scale point (items x 5); used for crowd tallies. */
@@ -37,12 +52,13 @@ export function alphaFromCounts(counts: number[][]): number | null {
   return alphaFromCoincidence(coin);
 }
 
-function alphaFromCoincidence(coin: number[][]): number | null {
+function alphaFromCoincidence(coin: number[][], metric: "ordinal" | "nominal" = "ordinal"): number | null {
   const V = coin.length;
   const nc = coin.map((row) => row.reduce((a, b) => a + b, 0));
   const nTotal = nc.reduce((a, b) => a + b, 0);
   if (nTotal === 0) return null;
   const delta = (c: number, k: number) => {
+    if (metric === "nominal") return c === k ? 0 : 1;
     const lo = Math.min(c, k), hi = Math.max(c, k);
     let s = 0;
     for (let g = lo; g <= hi; g++) s += nc[g];

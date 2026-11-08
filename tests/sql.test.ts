@@ -106,7 +106,7 @@ describe("sql/schema.sql", () => {
     rows.push(row({ baseline: {}, clips: { ca: { look: 1, same: 1 } } }, [], "other"));
     for (const r of rows) await as("service_role", () => db.query(insertSql, params(r)));
     // a row inserted by hand, bypassing the validator, must not break the tally
-    const bad = row({ baseline: { pa: 7 as never }, clips: { ca: { look: "x" as never, same: 9 } } });
+    const bad = row({ baseline: { pa: 7 as never }, clips: { ca: { look: "x" as never, same: 13 } } });
     await db.query(insertSql, params(bad));
     for (const minN of [1, 5, 9]) {
       const got = await as("service_role", () => db.query<{ t: unknown }>("select blindpanel.tally('demo', $1) as t", [minN]));
@@ -114,5 +114,29 @@ describe("sql/schema.sql", () => {
       // the hand-made row counts as a session, but none of its values do
       expect(got.rows[0].t).toEqual({ ...js, n_sessions: js.n_sessions + 1 });
     }
+  });
+
+  test("tally() counts options 1–12 and agrees with the JS tally", async () => {
+    await db.exec("truncate blindpanel.submissions");
+    const rows: Row[] = [];
+    let s = 11;
+    const rnd = () => ((s = (s * 48271) % 2147483647), (s % 12) + 1); // MINSTD: 1…12
+    for (let i = 0; i < 40; i++) {
+      const clips = Object.fromEntries(["ca", "cb"].map((c) => [c, { pick: rnd(), what: (rnd() % 8) + 1 }]));
+      rows.push(row({ baseline: {}, clips }, i % 9 === 0 ? ["too_fast"] : []));
+    }
+    const values = rows.flatMap((r) => Object.values(r.answers.clips).flatMap((a) => Object.values(a)));
+    expect(Math.max(...values)).toBeGreaterThan(5); // the test is only meaningful if options above 5 occur
+    for (const r of rows) await as("service_role", () => db.query(insertSql, params(r)));
+    // a hand-made row with values outside 1…12 counts as a session, but none of its values count
+    const bad = row({ baseline: {}, clips: { ca: { pick: 13 as never, what: 0 as never } } });
+    await db.query(insertSql, params(bad));
+    for (const minN of [1, 5, 12]) {
+      const got = await as("service_role", () => db.query<{ t: unknown }>("select blindpanel.tally('demo', $1) as t", [minN]));
+      const js = tallyRows("demo", rows, minN);
+      expect(got.rows[0].t).toEqual({ ...js, n_sessions: js.n_sessions + 1 });
+    }
+    const wide = tallyRows("demo", rows, 1);
+    expect(Object.values(wide.items).some((qs) => Object.values(qs).some((c) => c.counts.length > 5))).toBe(true);
   });
 });

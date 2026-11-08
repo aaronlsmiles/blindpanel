@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // One-command setup from a clean clone (Node built-ins only).
 //
-//   npm run setup            install, build, verify both examples, then serve the synthetic study
+//   npm run setup            install, build, verify the three examples, then serve the synthetic study
 //   npm run setup -- --ci    the same without the server, then the unit and end-to-end tests
 import { spawnSync, spawn } from "node:child_process";
 
@@ -25,8 +25,9 @@ const bp = (...args) => ["bin/blindpanel.mjs", ...args];
 
 run("Install exact dependencies", npm, ["ci", "--no-audit", "--no-fund"]);
 run("Build the kit", npm, ["run", "build"]);
-for (const ex of ["synthetic", "stilldrawn"]) {
-  run(`Build the ${ex} example`, process.execPath, bp("build", `examples/${ex}/study.yaml`));
+for (const ex of ["synthetic", "choice", "stilldrawn"]) {
+  // --out: the default folder is named after the study id (choice-demo), not the example folder
+  run(`Build the ${ex} example`, process.execPath, bp("build", `examples/${ex}/study.yaml`, "--out", `.blindpanel/build/${ex}`));
   run(`Verify the ${ex} example`, process.execPath, bp("verify", `examples/${ex}/study.yaml`, "--dist", `.blindpanel/build/${ex}`));
 }
 

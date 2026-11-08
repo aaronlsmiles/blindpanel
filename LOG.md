@@ -39,3 +39,18 @@ StillDrawn Explorer's design pass looked at the kit inside a real page and found
 After an opt-in, the results also ask for the tally once more with `fresh: true`, so the visitor who just added their ratings is counted (the endpoint is cached at the edge for five minutes).
 
 A motion review the same afternoon found one more: the options' and buttons' hover fill wasn't gated to devices that hover, and their 160 ms ease applied to every change of state, so a choice made with a number key faded in and a tap on a phone left its fill behind. The ease now runs only while a pointer hovers. The first test for it couldn't fail: in Chromium's phone emulation a synthetic pointer never triggers `:hover`, so the test now reads the stylesheet and requires every `:hover` rule to sit under `(hover: hover)`.
+
+## 2026-10-30: choice scales (0.2)
+
+An audit before any code found two places the "five labels" assumption lived that nobody had listed.
+
+- **The tally dropped options silently.** `sql/schema.sql`'s `tally()` kept only `^[1-5]$` and built five counts, and the JS tally pre-filled `[0,0,0,0,0]`. A twelfth option would have been stored and then missing from the crowd numbers (SQL) or counted as `NaN` (JS). Both now grow the counts to the highest option chosen, keeping the old five-entry shape for ordinal data.
+- **The results page assumed order.** "Where you land", the 1–5 strip and the crowd mean would have printed a Spearman ρ between option numbers. Choice questions now get no section there.
+
+Other things worth keeping.
+- **The hash had to stay put.** Adding `kind` to the compiled scale would have changed the instrument hash of every v0.1 study. The lock serialises an ordinal scale without `kind`, and `tests/v01-compat.test.ts` pins three hashes computed from the 0.1.0 code.
+- **A test that would have stopped meaning anything.** The SQL parity test's hand-made bad row used the value 9 as "out of range"; with 12 options 9 is valid. It uses 13 now.
+- **The ordinal α stayed bit-identical** by moving the coincidence matrix into a shared function and changing only the difference function; the goldens still match to 1e-12.
+- **CSV quoting arrived with the option label.** Labels may hold commas ("Leaned in, slowly"); no other CSV cell could.
+
+**Spend:** £0.

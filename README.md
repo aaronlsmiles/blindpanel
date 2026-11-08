@@ -6,11 +6,11 @@ Blinded human rating of generated video, as a kit. You write one `study.yaml`, a
 - an export that analysis scripts can read
 - the agreement maths that shows a rater where they land against a reference panel and against automatic metrics
 
-MIT licence. Version 0.1.0. Live demo: [stilldrawn.studionephele.com/rate](https://stilldrawn.studionephele.com/rate). [Film](https://media.studionephele.com/films/v1/blindpanel/16x9.mp4). There you rate clips from the [StillDrawn](https://doi.org/10.5281/zenodo.23072784) benchmark and see how your answers compare with its six raters'.
+MIT licence. Version 0.2.0. Live demo: [stilldrawn.studionephele.com/rate](https://stilldrawn.studionephele.com/rate). [Film](https://media.studionephele.com/films/v1/blindpanel/16x9.mp4). There you rate clips from the [StillDrawn](https://doi.org/10.5281/zenodo.23072784) benchmark and see how your answers compare with its six raters'.
 
 ```bash
 git clone <this repo> blindpanel && cd blindpanel
-npm run setup            # install, build, verify both examples, then serve one at http://localhost:5173
+npm run setup            # install, build, verify the examples, then serve one at http://localhost:5173
 ```
 
 ## What it explores
@@ -26,7 +26,7 @@ StillDrawn's human check was a one-off. Six raters scored 20 generated clips on 
 All of it mattered, and none of it was reusable.
 
 blindpanel turns those pieces into parts a study declares:
-- the questions and their five labelled points
+- the questions and their scales: five labelled points, or 2–12 unordered options to choose from
 - the reference stills shown beside each clip
 - a seed
 - a list of names the page must never show
@@ -70,6 +70,27 @@ If public visitors can see how much six careful raters disagree, they may read a
 
 The visitor's order is a published scheme (SHA-256 seeding xoshiro128**, then Fisher–Yates), so anyone can recompute it from the session id. The server rejects a submission whose order differs: [docs/order.md](docs/order.md).
 
+## Choice scales
+
+Not every question has a "more or less". "What did it react to?" has answers, not points. A scale with `kind: choice` lists 2–12 options, and a visitor picks one:
+
+```yaml
+scales:
+  reacts:
+    kind: choice
+    labels: [The light, A sound, Another shape, Nothing in particular]
+```
+
+- **Ordinal stays the default.** A scale without `kind` has exactly five labels, as before. Every 0.1 `study.yaml` compiles to the same wording hash, so existing locks still verify.
+- **Answers are 1…n**, in the order listed. The numbers carry no meaning beyond naming the option, so the page shows no endpoints or direction text, and a choice question takes no `direction`.
+- **Keys:** 1–9 select the first nine options and 0 the tenth. The 11th and 12th are clicked.
+- **Statistics:** the page's "where you land" shows nothing for a choice question (agreement with a panel's average needs an order). `blindpanel report` prints nominal Krippendorff's α, which counts any two different options as disagreeing equally, beside the ordinal α for ordinal questions.
+- **Straightlining** is flagged on ordinal questions only: choosing the same option every time can be a true answer.
+- **Export:** `ratings.csv` keeps its columns and ends with `option`, the label the visitor saw.
+- **Database:** re-run `sql/schema.sql` (safe to repeat) so the tally counts options 6–12; the older function skipped them.
+
+`examples/choice` is a runnable study with choice questions on both the stills and the clips.
+
 ## Privacy
 
 Opting in sends:
@@ -88,20 +109,21 @@ Nothing else is stored: no names, accounts, cookies, IP addresses or user agents
 - **Visitors see copies of the stills.** In the StillDrawn example, the six raters rated the original PNG stills (0.4–2.9 MB each). Visitors see high-quality WebP copies instead, about a sixth of the size. The copies are lossy but close: 43–51 dB PSNR against the PNG. The clips are the original files.
 - **The author's earlier wording.** In the StillDrawn panel, the author rated first, before two wording revisions. A switch leaves the author out.
 - **Self-selected visitors.** People choose to rate, so the crowd tally is a curiosity, not a study result.
-- **Version 0.1 is public mode only.** Invited panels (passwords per rater) come in v0.2.
+- **Public mode only.** Invited panels (passwords per rater) are not built yet.
 
 ## Layout
 
 | Path | What |
 |---|---|
 | `src/core` | schema, compiler, codes, order, payload validation (browser and server) |
-| `src/stats` | rank, Spearman, ordinal Krippendorff's α, where you land, bootstrap |
+| `src/stats` | rank, Spearman, ordinal and nominal Krippendorff's α, where you land, bootstrap |
 | `src/ui` | `mountSession`, `mountResults`, the standalone page; no framework |
 | `src/server` | submit, tally and keep-warm handlers; memory, file and Supabase stores |
 | `sql/schema.sql` | the Supabase schema: row-level security forced with no policies, daily and total caps |
 | `examples/synthetic` | three one-second CC0 clips; runs offline, used by CI |
+| `examples/choice` | choice questions on stills and clips; CC0, offline |
 | `examples/stilldrawn` | the StillDrawn human check (CC BY 4.0; see its ATTRIBUTION.md) |
 
 ## Licence
 
-Code: MIT ([LICENSE](LICENSE)). `examples/synthetic` is CC0. `examples/stilldrawn` holds CC BY 4.0 data from the StillDrawn release (Aaron Smiles, 2026, doi:10.5281/zenodo.23072784); its media are served from the release's host, byte-identical.
+Code: MIT ([LICENSE](LICENSE)). `examples/synthetic` and `examples/choice` are CC0. `examples/stilldrawn` holds CC BY 4.0 data from the StillDrawn release (Aaron Smiles, 2026, doi:10.5281/zenodo.23072784); its media are served from the release's host, byte-identical.

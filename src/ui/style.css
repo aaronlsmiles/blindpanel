@@ -205,6 +205,16 @@
       grid-template-columns: repeat(5, minmax(0, 1fr));
     }
   }
+  /* a choice question: unordered options, so no row of five; as many columns as fit */
+  @media (min-width: 720px) {
+    .bp-scale-choice {
+      grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    }
+  }
+  /* the 11th and 12th options have no key hint; keep their labels level with their neighbours' */
+  .bp-scale-choice .bp-num {
+    min-height: 1.35em;
+  }
   .bp-opt {
     position: relative;
     display: flex;

@@ -75,6 +75,20 @@ describe("verify catches each problem", () => {
     expect(await main(["lock", y])).toBe(0);
     expect(failed(await verify(await loadStudy(y)))).toEqual([]);
   });
+  test("a clip without reference ratings, past the panel count (a baseline question's columns are panels)", async () => {
+    // the synthetic study has two stills and three clips: take c03, the third clip, out of every reference rater's file
+    const dir = freshCopy();
+    for (const r of ["S1", "S2", "S3"]) {
+      const p = join(dir, "reference", `ratings-${r}.json`);
+      const d = JSON.parse(readFileSync(p, "utf8"));
+      d.ratings = d.ratings.filter((x: { clip: string }) => x.clip !== "c03");
+      writeFileSync(p, JSON.stringify(d));
+    }
+    const cs = await verify(await loadStudy(join(dir, "study.yaml")));
+    expect(cs.find((c) => c.name === "every clip has reference ratings")).toEqual({
+      name: "every clip has reference ratings", ok: false, detail: "1 clip(s) without any",
+    });
+  });
   test("a changed media file", async () => {
     const dir = freshCopy();
     appendFileSync(join(dir, "media/box-drift.mp4"), "x");
@@ -153,7 +167,10 @@ describe("dev server, export, report", () => {
     expect(v.rater).toBe("V0001");
     expect(v.ratings.map((r: { clip: string }) => r.clip).every((c: string) => /^c0[1-3]$/.test(c))).toBe(true);
     expect(JSON.stringify(v)).not.toContain(session);
-    expect(readFileSync(join(out, "ratings.csv"), "utf8").split("\n")[0]).toBe("visitor,instrument,part,position,item,question,score,flags");
+    const csv = readFileSync(join(out, "ratings.csv"), "utf8").split("\n");
+    expect(csv[0]).toBe("visitor,instrument,part,position,item,question,score,flags,option");
+    // an ordinal answer carries its scale point's label too: look = 4 is "Mostly"
+    expect(csv[1]).toMatch(/^V0001,1,clips,1,c0[1-3],look,4,,Mostly$/);
     expect(report(l, rows)).toMatch(/1 submissions; 1 unflagged/);
     expect(existsSync(join(out, "ratings.csv"))).toBe(true);
   });

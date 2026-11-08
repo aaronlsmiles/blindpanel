@@ -1,6 +1,6 @@
 {
   "name": "blindpanel",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Blinded human rating of generated video: study config, rating page, submit endpoint, export and agreement statistics.",
   "license": "MIT",
   "author": "Aaron Smiles",

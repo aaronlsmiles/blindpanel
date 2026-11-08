@@ -4,7 +4,7 @@ blindpanel's server parts are web-standard `Request → Response` functions, so 
 
 ## 1. The database
 
-1. Create a Supabase project. In the SQL editor, run `sql/schema.sql`. It is safe to run again.
+1. Create a Supabase project. In the SQL editor, run `sql/schema.sql`. It is safe to run again. **After upgrading to 0.2, re-run it on any live database that uses choice scales:** until you do, the tally drops options 6–12 (the raw submissions are still stored).
 2. Settings → API → Exposed schemas: add `blindpanel`. Without this, every call returns 404.
 3. Copy the project URL and a **secret** key (`sb_secret_…`). The key goes only into your server's environment, never into the page. The `supabaseStore` sends it in the `apikey` header only.
 

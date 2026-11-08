@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.2.0 (2026-11-08)
+
+- **Upgrade step (required for choice scales): re-run `sql/schema.sql` on any live database.** It is safe to repeat and keeps the same function signature. Until it is re-run, `tally()` drops options 6–12 from the crowd counts; the raw submissions are still stored, so nothing is lost, and nothing changes for studies that only use ordinal scales.
+- Choice scales: `scales.<id>.kind` is `ordinal` (the default; exactly 5 labels, unchanged) or `choice` (2–12 unordered options, answered 1…n). Every 0.1 `study.yaml` still validates and compiles to the same instrument hash (`tests/v01-compat.test.ts` pins three of them).
+- The compiled `Scale` gains `kind` and `max`. `study.json` now carries `kind: "ordinal"` on ordinal scales; the instrument hash does not (an ordinal scale hashes exactly as in 0.1).
+- The payload check accepts 1…max per question. A choice question may not set `direction`; two options may not read the same.
+- The page renders n radios for a choice question, in a labelled `radiogroup`. Keys 1–9 select the first nine options and 0 the tenth; the 11th and 12th are clicked. No ordinal key, endpoints or direction text appear, and the shortcut line names the keys that exist.
+- Results skip choice questions: no ρ, bias, strip or crowd mean for answers with no order.
+- The `straightline` flag looks at ordinal questions only.
+- `krippendorffNominal` (blindpanel/stats) beside the ordinal α; `blindpanel report` prints it for choice questions. Checked by hand on four small examples (8/15, 0, 9/37, 8/13).
+- `blindpanel export`: `ratings.csv` keeps its columns in order and appends `option`, the label the visitor saw (also for ordinal answers). Cells holding a comma, quote or line break are quoted. The per-visitor JSON files are unchanged.
+- Tally: `counts` has five entries, or as many as the highest option chosen. `sql/schema.sql`'s `tally()` (same signature; re-run the file, it is safe to repeat) counts options 1–12, where it counted 1–5 and dropped the rest.
+- `delivery.ui` reads `blindpanel@0.2.0`.
+- New example `examples/choice` (CC0; choice questions on stills and clips, no reference panel), verified by `npm run setup` and exercised in e2e on port 5312.
+- Regenerated `schema/study.schema.json`.
+- Fix: `verify`'s "every clip has reference ratings" check read a baseline question's columns (one per still) as if they were clip columns. In a study with a baseline question, a clip past the number of stills was never flagged, and a clip within that number could pass on a still's ratings. The check now reads the clip questions only.
+
 ## 0.1.0 (2026-10-30)
 
 - Study config (`study.yaml`) with a generated JSON Schema, seeded opaque codes and a wording lock.

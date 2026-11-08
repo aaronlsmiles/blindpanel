@@ -68,9 +68,10 @@ create trigger submissions_enforce_caps
   before insert on blindpanel.submissions
   for each row execute function blindpanel.enforce_caps();
 
--- Per item and question: how many unflagged sessions chose each scale point.
--- Cells with fewer than p_min_n answers are left out. Mirrors tallyRows() in
--- src/server/stores/tally.ts; tests/sql.test.ts checks the two agree.
+-- Per item and question: how many unflagged sessions chose each scale point (1–5) or, for a
+-- choice question, each option (1–12). `counts` has 5 entries, or as many as the highest option
+-- chosen in that cell when that is more. Cells with fewer than p_min_n answers are left out.
+-- Mirrors tallyRows() in src/server/stores/tally.ts; tests/sql.test.ts checks the two agree.
 create or replace function blindpanel.tally(p_study text, p_min_n integer default 5) returns jsonb
 language sql
 stable
@@ -91,20 +92,27 @@ as $$
     ) as item
     -- a malformed row (only possible by hand) is skipped rather than breaking the tally
     cross join lateral jsonb_each_text(case when jsonb_typeof(item.value) = 'object' then item.value else '{}'::jsonb end) as q
-    where q.value ~ '^[1-5]$'
+    -- 12 is the most options a choice scale may have (labels .max(12) in src/core/schema.ts). Raise both together.
+    where q.value ~ '^([1-9]|1[0-2])$'
+  ),
+  per_value as (
+    select code, question, v, count(*)::integer as c from cells group by code, question, v
   ),
   agg as (
-    select code, question, count(*)::integer as n,
-      jsonb_build_array(
-        count(*) filter (where v = 1), count(*) filter (where v = 2), count(*) filter (where v = 3),
-        count(*) filter (where v = 4), count(*) filter (where v = 5)) as counts
-    from cells
+    select code, question, sum(c)::integer as n, max(v) as top, jsonb_object_agg(v::text, c) as by_value
+    from per_value
     group by code, question
-    having count(*) >= p_min_n
+    having sum(c) >= p_min_n
+  ),
+  full_agg as (
+    select code, question, n,
+      (select jsonb_agg(coalesce((agg.by_value ->> g.v::text)::integer, 0) order by g.v)
+         from generate_series(1, greatest(5, agg.top)) as g(v)) as counts
+    from agg
   ),
   per_item as (
     select code, jsonb_object_agg(question, jsonb_build_object('n', n, 'counts', counts)) as qs
-    from agg group by code
+    from full_agg group by code
   )
   select jsonb_build_object(
     'study', p_study,

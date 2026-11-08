@@ -1,3 +1,4 @@
+import { ORDINAL_MAX } from "../../core/scale.js";
 import type { Row, Tally } from "./types.js";
 
 /** The reference tally; sql/schema.sql's blindpanel.tally() is tested against it. */
@@ -8,8 +9,10 @@ export function tallyRows(study: string, rows: Row[], minN: number): Tally {
     for (const part of [r.answers.baseline, r.answers.clips]) {
       for (const [code, qs] of Object.entries(part)) {
         for (const [q, v] of Object.entries(qs)) {
-          const cell = ((items[code] ??= {})[q] ??= { n: 0, counts: [0, 0, 0, 0, 0] });
+          const cell = ((items[code] ??= {})[q] ??= { n: 0, counts: new Array<number>(ORDINAL_MAX).fill(0) });
           cell.n++;
+          // a choice question has up to 12 options: the counts grow to the highest one chosen
+          while (cell.counts.length < v) cell.counts.push(0);
           cell.counts[v - 1]++;
         }
       }
