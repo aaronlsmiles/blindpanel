@@ -17,3 +17,4 @@ export { shuffle, rngFor, sha256Hex } from "./rng.js";
 export { parseBold, plainText } from "./text.js";
 export { instrumentText, textHash, canonicalJson } from "./lock.js";
 export { isChoice, scaleMax, maxFor, ORDINAL_MAX, keyValue, valueKey } from "./scale.js";
+export { derivedSession } from "./session-id.js";

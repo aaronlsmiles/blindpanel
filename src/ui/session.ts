@@ -16,6 +16,11 @@ export interface SessionOptions {
   /** defaults to the prefers-reduced-motion media query */
   reducedMotion?: boolean;
   now?: () => number;
+  /**
+   * For a host that sends the answers itself and shows no results (docs/hosted.md): the end screen's
+   * sentence and its button's label. The button still emits `complete`.
+   */
+  end?: { text: string; button: string };
 }
 
 export interface CompleteEvent {
@@ -290,7 +295,7 @@ export function mountSession(el: HTMLElement, study: Study, opts: SessionOptions
   function renderEnd(i: number, s: Extract<Step, { kind: "end" }>) {
     const rated = steps.slice(0, i).filter((x) => x.kind === "clip").length;
     const remaining = order!.blocks.slice(state.blocks).reduce((a, b) => a + b.clips.length, 0);
-    const see = h("button", { type: "button", class: "bp-btn bp-primary", "data-bp": "finish" }, "See where you land");
+    const see = h("button", { type: "button", class: "bp-btn bp-primary", "data-bp": "finish" }, opts.end?.button ?? "See where you land");
     see.addEventListener("click", finish);
     const more =
       remaining && s.block === state.blocks - 1
@@ -305,7 +310,7 @@ export function mountSession(el: HTMLElement, study: Study, opts: SessionOptions
     back.addEventListener("click", () => go(i - 1));
     put(screen, 
       heading(`Done: ${rated} ${rated === 1 ? "clip" : "clips"} rated`),
-      h("p", {}, "Next you'll see which model made each clip and how your answers compare with the reference panel's."),
+      h("p", {}, opts.end?.text ?? "Next you'll see which model made each clip and how your answers compare with the reference panel's."),
       remaining && more ? h("p", {}, `The panel's raters each did all ${rated + remaining}. You can do the rest first if you like.`) : null,
       h("div", { class: "bp-nav bp-nav-end" }, back, more, see),
     );
