@@ -100,7 +100,7 @@ parts:
         - { of: clip-31, position: 52 }
 ```
 
-The visitor answers a repeat like any clip; its answer is stored under the repeat's own code. Nothing on the page says a clip is repeated, but `study.json` lists the repeats: each repeat's code, its original's code and its position. The browser needs them to derive the order, and a repeat's video address is its original's file, so anyone who reads `study.json` can tell which clips come twice. The instrument lock does not cover repeats: they are design, not wording, so adding them keeps the wording hash.
+The visitor answers a repeat like any clip; its answer is stored under the repeat's own code. Nothing on the page says a clip is repeated, but `study.json` lists the repeats: each repeat's code, its original's code and its position. The browser needs them to derive the order, and a repeat's video address is its original's file, so anyone who reads `study.json` can tell which clips come twice. `blindpanel export` writes a repeat's answers as rows of their own, keyed `<ref>#repeat`. The results page, `blindpanel report` and `verify`'s reference-ratings check count the original clips only. The instrument lock does not cover repeats: they are design, not wording, so adding them keeps the wording hash.
 
 ## Items
 
