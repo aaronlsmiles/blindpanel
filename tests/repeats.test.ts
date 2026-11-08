@@ -83,9 +83,11 @@ describe("repeats: schema", () => {
     expect(repeatPlacementChance(55, [52, 30], 5).toFixed(3)).toBe("0.379");
     expect(repeatPlacementChance(3, [4], 2)).toBeCloseTo(2 / 3, 12); // the mini study above
     expect(repeatPlacementChance(3, [2, 3], 1)).toBe(0);
+    // three repeats, min_gap 2, five clips: 1/5 × 3/4 × 3/3 = 3/20 (also checked by brute force below)
+    expect(repeatPlacementChance(5, [3, 7, 8], 2)).toBeCloseTo(3 / 20, 12);
   });
   test.each([
-    [3, [4], 2], [3, [2, 3], 1], [5, [3, 6], 1], [5, [4, 7], 2], [6, [3, 5, 9], 1], [6, [7, 8], 3], [5, [2, 4, 6], 1],
+    [3, [4], 2], [3, [2, 3], 1], [5, [3, 6], 1], [5, [4, 7], 2], [6, [3, 5, 9], 1], [6, [7, 8], 3], [5, [2, 4, 6], 1], [5, [3, 7, 8], 2],
   ] as [number, number[], number][])("the chance matches brute force: %i clips, positions %j, min_gap %i", (n, positions, gap) => {
     expect(repeatPlacementChance(n, positions, gap)).toBeCloseTo(bruteChance(n, positions, gap), 12);
   });
