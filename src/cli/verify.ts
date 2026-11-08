@@ -81,7 +81,9 @@ export async function verify(l: Loaded, o: VerifyOptions = {}): Promise<Check[]>
     const r = l.reveal.reference;
     const empty = Object.entries(r.ratings).filter(([, m]) => m.every((row) => row.every((v) => v === null)));
     check("reference ratings cover every question", !empty.length, `no ratings for ${empty.map(([q]) => q).join(", ")} (check each item's ref)`);
-    const unrated = clipCodes.filter((_, j) => Object.values(r.ratings).every((m) => m.every((row) => row[j] === null)));
+    // the clip questions only: a baseline question's columns are panels, not clips
+    const clipRatings = s.questions.filter((q) => q.part === "clips").map((q) => r.ratings[q.id]);
+    const unrated = clipCodes.filter((_, j) => clipRatings.every((m) => m.every((row) => row[j] === null)));
     check("every clip has reference ratings", !unrated.length, `${unrated.length} clip(s) without any`);
   }
 
