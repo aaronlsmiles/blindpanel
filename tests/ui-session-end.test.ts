@@ -30,6 +30,9 @@ test("a host's end option replaces the reveal sentence and the button label; com
   expect(document.body.textContent).toContain("Press Send to save your answers.");
   expect(document.body.textContent).not.toContain("which model made each clip");
   expect(btn("finish").textContent).toBe("Send my answers");
+  // the host decides what comes next: no offer to rate the remaining clips (the synthetic study has one left)
+  expect(document.querySelector('[data-bp="extend"]')).toBeNull();
+  expect(document.body.textContent).not.toContain("You can do the rest first");
   btn("finish").click();
   expect((await done).submission.session).toBe(SESSION);
 });

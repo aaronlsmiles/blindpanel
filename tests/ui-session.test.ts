@@ -177,6 +177,42 @@ describe("mountSession", () => {
     expect(b.getState().answers).toEqual(at.answers);
   });
 
+  test("a host's session that differs from the saved one starts fresh, and its Send carries its own session", async () => {
+    // two invited participants in one browser: A's progress is saved, then the host mounts B
+    const B = "22222222-2222-4222-8222-222222222222";
+    const storage = memoryStorage();
+    const a = await mount({ storage });
+    btn("start").click();
+    answerScreen(2);
+    btn("next").click();
+    a.destroy();
+    const b = await mount({ storage, session: B });
+    expect(b.getState().session).toBe(B);
+    expect(b.getState().step).toBe(0);
+    expect(b.getState().answers).toEqual({ baseline: {}, clips: {} });
+    const events: CompleteEvent[] = [];
+    b.on("complete", (e) => events.push(e));
+    btn("start").click();
+    while (b.getState().kind !== "end") { answerScreen(3); btn("next").click(); }
+    btn("finish").click();
+    expect(events[0].submission.session).toBe(B);
+    expect(await validateSubmission(study, JSON.parse(JSON.stringify(events[0].submission)))).toMatchObject({ ok: true });
+  });
+
+  test("the same host session resumes after a reload", async () => {
+    const storage = memoryStorage();
+    const a = await mount({ storage });
+    btn("start").click();
+    answerScreen(2);
+    btn("next").click();
+    const at = a.getState();
+    a.destroy();
+    const again = await mount({ storage, session: SESSION });
+    expect(again.getState().session).toBe(SESSION);
+    expect(again.getState().step).toBe(at.step);
+    expect(again.getState().answers).toEqual(at.answers);
+  });
+
   test("broken storage does not break the session", async () => {
     const broken = { getItem: () => { throw new Error("blocked"); }, setItem: () => { throw new Error("blocked"); }, removeItem() {}, clear() {}, key: () => null, length: 0 } as Storage;
     const c = await mount({ storage: broken });
