@@ -4,8 +4,9 @@
 
 ## What the kit gives the host
 
-- `mountSession(el, study, { session, storage, end })` runs the rating and emits `complete` with the submission. It never fetches `reveal.json` and never shows results: those belong to `mountResults`, which the host does not mount. Given a `session`, it resumes saved progress only when that progress was saved for the same session, so a reload brings a participant back to their place and another participant in the same browser starts fresh.
+- `mountSession(el, study, { session, storage, end, intro })` runs the rating and emits `complete` with the submission. It never fetches `reveal.json` and never shows results: those belong to `mountResults`, which the host does not mount. Given a `session`, it resumes saved progress only when that progress was saved for the same session, so a reload brings a participant back to their place and another participant in the same browser starts fresh.
 - `end: { text, button }` replaces the end screen's "Next you'll see which model made each clip…" sentence and its "See where you land" button, and leaves out the offer to rate the remaining clips: the host decides what comes next.
+- `intro: "<sentence>"` replaces the intro's "Model names stay hidden until you finish." after the count of stills and clips, and `intro: false` leaves the count alone, so a host that reveals nothing promises nothing.
 - `derivedSession(key)` turns a key such as `<order seed>:<study id>:session:<participant>` into a fixed session id, so each participant's order exists before anyone rates and can be listed in a registration.
 - `validateSubmission(study, body)` is the server's whole check: format, study, instrument, a v4 session, the order re-derived from the session, every answer in range. `parts.clips.repeats` adds attention repeats.
 
