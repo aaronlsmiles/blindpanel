@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1 (2026-11-09)
+
+- `mountSession(..., { intro })`: a host that reveals nothing replaces the intro's "Model names stay hidden until you finish." with its own sentence, or with `false` shows only the count of stills and clips; without the option the intro is unchanged. `delivery.ui` reads `blindpanel@0.3.1`.
+
 ## 0.3.0 (2026-11-08)
 
 - Attention repeats: `parts.clips.repeats` (`min_gap`, `items: [{of, position}]`). Each repeat has its own seeded code (the id `<clip id>#repeat`), shows its original's clip and still, and is placed by a published extension of the order scheme (docs/order.md, "Repeats"; `scripts/order_ref.py` is the reference). Repeats are not wording: the instrument hash is unchanged. A study without repeats compiles and orders exactly as in 0.2.

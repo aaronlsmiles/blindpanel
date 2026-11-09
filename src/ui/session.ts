@@ -25,6 +25,11 @@ export interface SessionOptions {
    * decides what comes next). The button still emits `complete`.
    */
   end?: { text: string; button: string };
+  /**
+   * For a host that reveals nothing (docs/hosted.md): the sentence after the intro's count of stills
+   * and clips, in place of "Model names stay hidden until you finish."; false shows the count alone.
+   */
+  intro?: string | false;
 }
 
 export interface CompleteEvent {
@@ -224,15 +229,15 @@ export function mountSession(el: HTMLElement, study: Study, opts: SessionOptions
     start.addEventListener("click", () => go(i + 1));
     const nClips = order!.blocks[0].clips.length;
     const nPanels = order!.blocks[0].baseline.length;
+    const count =
+      study.parts.baseline && nPanels
+        ? `${nPanels} still ${nPanels === 1 ? "image" : "images"} first, then ${nClips} short clips.`
+        : `${nClips} short clips.`;
+    // a host that reveals nothing replaces the promise (opts.intro), or drops it (false)
+    const then = opts.intro === false ? null : (opts.intro ?? "Model names stay hidden until you finish.");
     put(screen, 
       heading(study.title),
-      h(
-        "p",
-        { class: "bp-lede" },
-        study.parts.baseline && nPanels
-          ? `${nPanels} still ${nPanels === 1 ? "image" : "images"} first, then ${nClips} short clips. Model names stay hidden until you finish.`
-          : `${nClips} short clips. Model names stay hidden until you finish.`,
-      ),
+      h("p", { class: "bp-lede" }, then ? `${count} ${then}` : count),
       ...(study.parts.baseline?.intro ?? []).map((p) => h("p", {}, rich(p))),
       ...study.parts.clips.intro.map((p) => h("p", {}, rich(p))),
       ...clipQs.map((q, k) =>
